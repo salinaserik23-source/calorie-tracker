@@ -1,0 +1,2251 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Calorie Tracker</title>
+  <meta name="description" content="A small, offline-first calorie tracker. Your data stays on this device.">
+
+  <!-- PWA / theme -->
+  <link rel="manifest" href="./manifest.webmanifest">
+  <meta name="theme-color" content="#FAF7F2" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1B1916" media="(prefers-color-scheme: dark)">
+  <meta name="color-scheme" content="light dark">
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <!-- iOS home-screen app -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Calories">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <meta name="format-detection" content="telephone=no">
+  <!-- Inline SVG icon first, so index.html still has an icon when opened or served on its own. -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2323805A'/%3E%3Ccircle cx='32' cy='32' r='17' fill='none' stroke='%23FAF7F2' stroke-opacity='.3' stroke-width='6'/%3E%3Cpath d='M32 15A17 17 0 1 1 15 32' fill='none' stroke='%23FAF7F2' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M25 39Q25 25 39 25Q39 39 25 39z' fill='%23FAF7F2'/%3E%3C/svg%3E">
+  <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+
+  <style>
+/* ==========================================================================
+   DESIGN TOKENS: inlined verbatim from design/tokens.css (App Designer, v1).
+   Edit design/tokens.css AND this block together when restyling.
+   ========================================================================== */
+:root {
+  color-scheme: light dark;
+  /* Surfaces: warm off-white, never pure white */
+  --bg: #FAF7F2;
+  --surface: #FFFFFF;
+  --surface-2: #F2EEE7;
+  --border: #E6E0D6;
+  /* Text */
+  --text: #24211D;
+  --text-2: #6B645A;   /* AA on --bg */
+  --text-3: #8F887D;   /* captions/large only */
+  /* Accent: fresh green */
+  --accent: #2F9E6B;
+  --accent-strong: #23805A;  /* text/buttons with white label, AA */
+  --accent-soft: #DDF2E7;
+  --on-accent: #FFFFFF;
+  /* Ring states */
+  --ring-track: #ECE6DC;
+  --ring-ok: #2F9E6B;
+  --ring-near: #E9A23B;   /* 90-100% of goal */
+  --ring-over: #E0664F;   /* over goal, gentle coral not alarm red */
+  /* Meal tints (chips/cards) */
+  --meal-breakfast: #FCE9C8;
+  --meal-lunch: #DDF2E7;
+  --meal-dinner: #E4E2FA;
+  --meal-snack: #FBE0DA;
+  /* Type: system rounded stack */
+  --font: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --fs-display: 44px; --fw-display: 800; --lh-display: 1.05;  /* calories left */
+  --fs-title: 22px;   --fw-title: 700;   --lh-title: 1.2;
+  --fs-body: 17px;    --fw-body: 500;    --lh-body: 1.4;
+  --fs-caption: 13px; --fw-caption: 600; --lh-caption: 1.3;
+  --fs-key: 28px;     --fw-key: 600;
+  /* Spacing (4pt base) */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 20px; --s-6: 24px; --s-8: 32px; --s-10: 40px;
+  /* Radii */
+  --r-sm: 10px; --r-md: 16px; --r-lg: 22px; --r-pill: 999px;
+  /* Shadows (light only) */
+  --shadow-card: 0 1px 2px rgba(60,45,25,.06), 0 4px 14px rgba(60,45,25,.06);
+  --shadow-fab: 0 6px 18px rgba(35,128,90,.30);
+  --tap-min: 44px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1B1916;         /* warm charcoal, not pure black */
+    --surface: #25221E;
+    --surface-2: #2F2B26;
+    --border: #3A352F;
+    --text: #F3EEE6;
+    --text-2: #B7AFA3;
+    --text-3: #8C857A;
+    --accent: #4CC38A;
+    --accent-strong: #4CC38A;
+    --accent-soft: #1F3A2D;
+    --on-accent: #10231A;
+    --ring-track: #34302A;
+    --ring-ok: #4CC38A;
+    --ring-near: #F0B456;
+    --ring-over: #F08068;
+    --meal-breakfast: #3D3222;
+    --meal-lunch: #1F3A2D;
+    --meal-dinner: #2C2A45;
+    --meal-snack: #42292A;
+    --shadow-card: none;
+    --shadow-fab: 0 6px 18px rgba(0,0,0,.45);
+  }
+}
+
+/* ---- App-level additions (derived from the designer tokens; not in the designer file) ---- */
+:root {
+  --accent-ink: #1D6B4B;     /* accent TEXT on --accent-soft / surface: 5.5:1 */
+  --danger: #A33A28;         /* destructive text/fill; white label 6.6:1 */
+  --on-danger: #FFFFFF;
+  --danger-soft: #FBE9E5;
+  --overlay: rgba(36, 33, 29, .42);
+  --tabbar-bg: rgba(250, 247, 242, .92);
+  --shadow-raised: 0 -8px 30px rgba(60,45,25,.16);
+  --tabbar-h: 64px;
+  --dock-btn-h: 52px;
+  --dock-h: 0px;            /* height of the Add dock when it is showing (set on body.has-dock) */
+  --max-w: 520px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --duration: 240ms;
+  --duration-fast: 140ms;
+  --ease: cubic-bezier(.2, .8, .2, 1);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --accent-ink: #7FD9AC;
+    --danger: #F08068;
+    --on-danger: #2A120D;
+    --danger-soft: #42292A;
+    --overlay: rgba(0, 0, 0, .55);
+    --tabbar-bg: rgba(27, 25, 22, .92);
+    --shadow-raised: 0 -8px 30px rgba(0,0,0,.5);
+  }
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; background: var(--bg); }
+body {
+  margin: 0; min-height: 100vh; min-height: 100dvh;
+  background: var(--bg); color: var(--text);
+  font-family: var(--font); font-size: var(--fs-body); font-weight: var(--fw-body); line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+body.no-scroll { overflow: hidden; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; -webkit-user-select: none; user-select: none; touch-action: manipulation; }
+svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.caption { font-size: var(--fs-caption); font-weight: var(--fw-caption); line-height: var(--lh-caption); color: var(--text-2); }
+
+/* ---------- Shell ---------- */
+body.has-dock { --dock-h: calc(var(--dock-btn-h) + 2 * var(--s-2)); }
+.app {
+  max-width: var(--max-w); margin: 0 auto;
+  /* Bottom padding clears the tab bar, the Add dock and a little breathing room, so the last row is never hidden. */
+  padding: calc(var(--safe-top) + var(--s-4)) calc(var(--safe-right) + var(--s-4))
+           calc(var(--tabbar-h) + var(--safe-bottom) + var(--dock-h) + var(--s-6)) calc(var(--safe-left) + var(--s-4));
+}
+.view { animation: fade-in var(--duration) var(--ease); }
+@keyframes fade-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.page-header { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--s-3); padding: var(--s-2) var(--s-1) var(--s-4); }
+.eyebrow { margin: 0; font-size: var(--fs-caption); font-weight: var(--fw-caption); color: var(--text-2); }
+.page-title { margin: 2px 0 0; font-size: var(--fs-title); font-weight: var(--fw-title); line-height: var(--lh-title); letter-spacing: -0.01em; }
+.card { background: var(--surface); border-radius: var(--r-lg); box-shadow: var(--shadow-card); }
+@media (prefers-color-scheme: dark) { .card { border: 1px solid var(--border); } }
+.section-title { margin: var(--s-6) var(--s-1) var(--s-2); font-size: var(--fs-caption); font-weight: var(--fw-caption); color: var(--text-2); text-transform: uppercase; letter-spacing: .06em; }
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2);
+  min-height: 52px; padding: 0 var(--s-5); border: 0; border-radius: var(--r-md);
+  font-size: var(--fs-body); font-weight: 700;
+  transition: transform var(--duration-fast) var(--ease), background-color var(--duration-fast);
+}
+.btn:active { transform: scale(.98); }
+.btn-primary { background: var(--accent-strong); color: var(--on-accent); }
+.btn-secondary { background: var(--surface-2); color: var(--text); }
+.btn-danger { background: var(--danger); color: var(--on-danger); }
+.btn-danger-ghost { background: var(--danger-soft); color: var(--danger); }
+.btn-block { width: 100%; }
+.btn-sm { min-height: var(--tap-min); padding: 0 var(--s-4); font-size: 15px; }
+.icon-btn {
+  display: inline-grid; place-items: center; flex: none;
+  width: var(--tap-min); height: var(--tap-min); padding: 0;
+  border: 0; border-radius: var(--r-pill); background: transparent; color: var(--text-2);
+}
+.icon-btn:active { background: var(--surface-2); }
+.icon-btn:disabled { opacity: .3; cursor: default; }
+.pill-btn {
+  min-height: var(--tap-min); padding: 0 var(--s-4); border: 0; border-radius: var(--r-pill);
+  background: var(--accent-soft); color: var(--accent-ink); font-size: 15px; font-weight: 700;
+}
+
+/* ---------- Streak ---------- */
+.streak { padding: var(--s-3) var(--s-4) var(--s-3); margin-bottom: var(--s-3); }
+.streak-top { display: flex; align-items: center; gap: var(--s-3); }
+.flame { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--r-md); background: var(--surface-2); }
+.flame svg { width: 28px; height: 28px; stroke: none; }
+.flame-outer { fill: var(--text-3); }
+.flame-inner { fill: var(--surface-2); }
+.streak[data-active="1"] .flame { background: var(--meal-breakfast); }
+.streak[data-active="1"] .flame-outer { fill: var(--ring-over); }
+.streak[data-active="1"] .flame-inner { fill: var(--ring-near); }
+.streak-main { flex: 1; min-width: 0; }
+.streak-title { margin: 0; font-size: var(--fs-body); font-weight: 700; line-height: 1.25; }
+#streak-count { font-size: var(--fs-title); font-weight: 800; font-variant-numeric: tabular-nums; }
+.streak-msg { margin: 1px 0 0; }
+.streak-best { flex: none; display: flex; flex-direction: column; align-items: center; min-width: 44px; padding-left: var(--s-3); border-left: 1px solid var(--border); }
+.week-row { list-style: none; display: grid; grid-template-columns: repeat(7, 1fr); gap: var(--s-1); margin: var(--s-3) 0 0; padding: 0; }
+.wk { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.wk-dot { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--surface-2); }
+.wk-dot svg { width: 16px; height: 16px; stroke-width: 3; color: var(--on-accent); }
+.wk[data-state="done"] .wk-dot { background: var(--accent-strong); }
+.wk[data-state="pending"] .wk-dot { background: transparent; border: 2px dashed var(--text-3); }
+.wk-lbl { font-size: 11px; font-weight: 700; color: var(--text-2); }
+.wk[data-state="pending"] .wk-lbl, .wk:last-child .wk-lbl { color: var(--text); }
+.milestone { display: flex; align-items: center; gap: var(--s-2); margin-top: var(--s-3); padding: 0 0 0 var(--s-3); border-radius: var(--r-md); background: var(--accent-soft); color: var(--accent-ink); font-size: 15px; font-weight: 700; animation: fade-in var(--duration) var(--ease); }
+.milestone > span:nth-child(2) { flex: 1; }
+.milestone .icon-btn { color: var(--accent-ink); }
+
+/* ---------- Day navigation ---------- */
+.day-nav { display: flex; align-items: center; justify-content: space-between; padding: var(--s-1); margin-bottom: var(--s-3); }
+.day-nav-label { display: flex; flex-direction: column; align-items: center; min-width: 0; }
+.day-nav-label strong { font-weight: 700; }
+
+/* ---------- Progress ring ---------- */
+.ring-card { padding: var(--s-5) var(--s-4) var(--s-4); display: flex; flex-direction: column; align-items: center; }
+.ring-wrap { position: relative; width: 220px; height: 220px; }
+.ring { width: 100%; height: 100%; transform: rotate(-90deg); stroke-linecap: round; }
+.ring-track { stroke: var(--ring-track); }
+.ring-bar { stroke: var(--ring-ok); transition: stroke-dashoffset 600ms var(--ease), stroke var(--duration); }
+.ring-card[data-state="near"] .ring-bar { stroke: var(--ring-near); }
+.ring-card[data-state="over"] .ring-bar { stroke: var(--ring-over); }
+.ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.ring-num { font-size: var(--fs-display); font-weight: var(--fw-display); line-height: var(--lh-display); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.ring-card[data-state="over"] .ring-pre { color: var(--danger); }
+.ring-stats { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; margin-top: var(--s-4); padding-top: var(--s-3); border-top: 1px solid var(--border); text-align: center; }
+.ring-stats > div { display: flex; flex-direction: column; }
+.stat-num { font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* ---------- Meals ---------- */
+.meal { margin-top: var(--s-3); overflow: hidden; }
+.meal-head { display: flex; align-items: center; gap: var(--s-2); padding: var(--s-1) var(--s-1) var(--s-1) var(--s-4); min-height: 52px; background: var(--tint); }
+.meal[data-meal="breakfast"] .meal-head, .meal-chip[data-meal="breakfast"] { --tint: var(--meal-breakfast); }
+.meal[data-meal="lunch"] .meal-head,     .meal-chip[data-meal="lunch"]     { --tint: var(--meal-lunch); }
+.meal[data-meal="dinner"] .meal-head,    .meal-chip[data-meal="dinner"]    { --tint: var(--meal-dinner); }
+.meal[data-meal="snacks"] .meal-head,    .meal-chip[data-meal="snacks"]    { --tint: var(--meal-snack); }
+.meal-emoji { font-size: 20px; line-height: 1; }
+.meal-name { margin: 0; flex: 1; font-size: var(--fs-body); font-weight: 700; }
+.meal-total { font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text); }
+.meal-total small { font-size: var(--fs-caption); font-weight: var(--fw-caption); color: var(--text-2); }
+.meal-add { color: var(--text); }
+.meal-add:active { background: rgba(0,0,0,.06); }
+.meal-empty { margin: 0; padding: var(--s-3) var(--s-4); }
+.entries { list-style: none; margin: 0; padding: 0; }
+.entries li + li { border-top: 1px solid var(--border); }
+.entry {
+  display: flex; align-items: center; gap: var(--s-3); width: 100%; min-height: 56px;
+  padding: var(--s-2) var(--s-4); border: 0; background: transparent; text-align: left;
+}
+.entry:active { background: var(--surface-2); }
+.entry-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.entry-name, .entry-sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.entry-name { font-weight: 600; }
+.entry-kcal { flex: none; font-weight: 700; font-variant-numeric: tabular-nums; }
+.entry-kcal small { font-size: var(--fs-caption); font-weight: var(--fw-caption); color: var(--text-2); }
+
+/* ---------- Empty ---------- */
+.empty { padding: var(--s-8) var(--s-6); text-align: center; margin-top: var(--s-3); }
+.empty-emoji { font-size: 44px; line-height: 1; margin-bottom: var(--s-3); }
+.empty-title { margin: 0 0 var(--s-1); font-size: 19px; font-weight: 700; }
+.empty-text { margin: 0 auto; max-width: 30ch; color: var(--text-2); font-size: 15px; }
+
+/* ---------- Add button dock ---------- */
+/* An opaque strip directly above the tab bar: rows scroll behind it like they do behind the tab bar, never under a floating button. */
+.fab-dock {
+  position: fixed; z-index: 11; left: 0; right: 0; bottom: calc(var(--tabbar-h) + var(--safe-bottom));
+  padding: var(--s-2) max(calc(var(--safe-right) + var(--s-4)), calc((100vw - var(--max-w)) / 2 + var(--s-4)))
+           var(--s-2) max(calc(var(--safe-left) + var(--s-4)), calc((100vw - var(--max-w)) / 2 + var(--s-4)));
+  background: var(--bg);
+}
+/* Soft fade so rows slide under the dock instead of being cut off abruptly. */
+.fab-dock::before { content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: var(--s-4); background: linear-gradient(to bottom, transparent, var(--bg)); pointer-events: none; }
+.fab-dock[hidden] { display: none; }
+.fab {
+  display: flex; align-items: center; justify-content: center; gap: var(--s-2); width: 100%;
+  min-height: var(--dock-btn-h); padding: 0 var(--s-5); border: 0; border-radius: var(--r-pill);
+  background: var(--accent-strong); color: var(--on-accent); box-shadow: var(--shadow-fab);
+  font-size: var(--fs-body); font-weight: 700;
+}
+.fab svg { stroke-width: 2.6; }
+.fab:active { transform: scale(.97); }
+
+/* ---------- History ---------- */
+.hist-stats { display: grid; grid-template-columns: repeat(3, 1fr); text-align: center; padding: var(--s-4) var(--s-2); }
+.hist-stats > div { display: flex; flex-direction: column; gap: 2px; }
+.hist-stats .big { font-size: var(--fs-title); font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.15; }
+.chart-card { padding: var(--s-4) var(--s-3) var(--s-2); margin-top: var(--s-3); }
+.chart { display: block; width: 100%; height: auto; overflow: visible; stroke: none; }
+.chart .bar { fill: var(--ring-ok); }
+.chart .bar[data-state="near"] { fill: var(--ring-near); }
+.chart .bar[data-state="over"] { fill: var(--ring-over); }
+.chart .bar-bg { fill: var(--surface-2); }
+.chart .goal-line { stroke: var(--text-2); stroke-width: 1.5; stroke-dasharray: 5 4; fill: none; }
+.chart .baseline { stroke: var(--border); stroke-width: 1; }
+.chart .goal-label { fill: var(--text-2); font-size: 11px; font-weight: 700; }
+.chart .val { fill: var(--text); font-size: 11px; font-weight: 700; text-anchor: middle; font-variant-numeric: tabular-nums; }
+.chart .val-in { fill: #1B1916; } /* dark ink on mid-tone bars: >=4.5:1 on green, amber and coral in both themes */
+.chart .day { fill: var(--text-2); font-size: 12px; font-weight: 600; text-anchor: middle; }
+.chart .day.is-today { fill: var(--text); font-weight: 800; }
+.legend { display: flex; justify-content: center; gap: var(--s-4); flex-wrap: wrap; padding: var(--s-2) 0 var(--s-1); }
+.legend > span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 10px; height: 10px; border-radius: 3px; background: var(--ring-ok); }
+.legend i.near { background: var(--ring-near); } .legend i.over { background: var(--ring-over); }
+.legend i.goal { height: 0; border-top: 2px dashed var(--text-2); border-radius: 0; width: 14px; background: none; }
+.day-list { list-style: none; margin: 0; padding: 0; overflow: hidden; }
+.day-list li + li { border-top: 1px solid var(--border); }
+.day-row { display: flex; align-items: center; gap: var(--s-3); width: 100%; min-height: 52px; padding: var(--s-2) var(--s-4); border: 0; background: transparent; text-align: left; }
+.day-row:active { background: var(--surface-2); }
+.day-row .grow { flex: 1; min-width: 0; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--ring-track); flex: none; }
+.dot[data-state="ok"] { background: var(--ring-ok); } .dot[data-state="near"] { background: var(--ring-near); } .dot[data-state="over"] { background: var(--ring-over); }
+
+/* ---------- Settings ---------- */
+.set-card { padding: var(--s-4); }
+.set-card + .set-card { margin-top: var(--s-3); }
+.set-title { margin: 0 0 var(--s-1); font-size: var(--fs-body); font-weight: 700; }
+.set-help { margin: 0 0 var(--s-3); }
+.goal-row { display: flex; gap: var(--s-2); align-items: stretch; }
+.input {
+  width: 100%; min-height: 48px; padding: 0 var(--s-3);
+  border: 1.5px solid transparent; border-radius: var(--r-md); background: var(--surface-2);
+  font-size: var(--fs-body); -webkit-appearance: none; appearance: none;
+}
+.input::placeholder { color: var(--text-3); }
+.input:focus { outline: none; border-color: var(--accent); background: var(--surface); }
+.input-suffix { position: relative; flex: 1; }
+.input-suffix .input { padding-right: 56px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.input-suffix span { position: absolute; right: var(--s-3); top: 50%; transform: translateY(-50%); pointer-events: none; }
+.btn-row { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.btn-row .btn { flex: 1 1 140px; }
+.my-foods { list-style: none; margin: var(--s-3) 0 0; padding: 0; }
+.my-foods li { display: flex; align-items: center; gap: var(--s-2); min-height: 52px; border-top: 1px solid var(--border); }
+.my-foods .grow { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.my-foods .grow span:first-child { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.del-btn { color: var(--text-2); }
+.del-btn:active { color: var(--danger); background: var(--danger-soft); }
+.foot { text-align: center; margin: var(--s-6) 0 0; }
+
+/* ---------- Tab bar ---------- */
+.tabbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  padding: 0 max(var(--safe-right), calc((100vw - var(--max-w)) / 2)) var(--safe-bottom) max(var(--safe-left), calc((100vw - var(--max-w)) / 2));
+  background: var(--tabbar-bg); -webkit-backdrop-filter: saturate(180%) blur(16px); backdrop-filter: saturate(180%) blur(16px);
+  border-top: 1px solid var(--border);
+}
+.tab {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  height: var(--tabbar-h); color: var(--text-2); text-decoration: none;
+  font-size: var(--fs-caption); font-weight: var(--fw-caption);
+}
+.tab[aria-current="page"] { color: var(--accent-ink); }
+.tab[aria-current="page"] svg { stroke-width: 2.4; }
+
+/* ---------- Sheet ---------- */
+.backdrop { position: fixed; inset: 0; z-index: 20; background: var(--overlay); opacity: 0; transition: opacity var(--duration) var(--ease); }
+.backdrop.is-open { opacity: 1; }
+.backdrop-top { z-index: 40; }
+.sheet {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+  max-width: var(--max-w); margin: 0 auto;
+  max-height: calc(100dvh - var(--safe-top) - var(--s-3));
+  overflow-y: auto; overscroll-behavior: contain;
+  padding: 0 calc(var(--safe-right) + var(--s-4)) 0 calc(var(--safe-left) + var(--s-4));
+  background: var(--surface); border-radius: var(--r-lg) var(--r-lg) 0 0; box-shadow: var(--shadow-raised);
+  transform: translateY(105%); transition: transform var(--duration) var(--ease); outline: none;
+}
+.sheet.is-open { transform: translateY(0); }
+.sheet-grabber { width: 40px; height: 5px; margin: var(--s-2) auto 0; border-radius: var(--r-pill); background: var(--border); }
+.sheet-head { display: flex; align-items: center; gap: var(--s-2); margin-top: var(--s-1); }
+.sheet-title { margin: 0; font-size: 19px; font-weight: 700; }
+.sheet-head .caption { flex: 1; }
+.sheet-head .icon-btn { margin-right: calc(var(--s-2) * -1); }
+.field-label { display: block; margin: 0 0 6px var(--s-1); font-size: var(--fs-caption); font-weight: var(--fw-caption); color: var(--text-2); }
+.form-block { margin-top: var(--s-3); }
+.search-box { position: relative; }
+.search-box > svg { position: absolute; left: var(--s-3); top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: var(--text-2); pointer-events: none; }
+.search-box .input { padding-left: 42px; padding-right: 48px; }
+.search-box .clear-btn { position: absolute; right: 2px; top: 50%; transform: translateY(-50%); }
+.results { list-style: none; margin: var(--s-2) 0 0; padding: 0; border: 1px solid var(--border); border-radius: var(--r-md); overflow: hidden; }
+.results li + li { border-top: 1px solid var(--border); }
+.result { display: flex; align-items: center; gap: var(--s-3); width: 100%; min-height: 52px; padding: var(--s-2) var(--s-3); border: 0; background: var(--surface); text-align: left; }
+.result:active, .result:focus-visible { background: var(--surface-2); }
+.result-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.result-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.result-name mark { background: none; color: inherit; font-weight: 800; text-decoration: underline; text-decoration-color: var(--accent); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.result-kcal { flex: none; font-weight: 700; font-variant-numeric: tabular-nums; }
+.result-kcal small { font-size: var(--fs-caption); color: var(--text-2); font-weight: var(--fw-caption); }
+.badge { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: var(--r-pill); background: var(--accent-soft); color: var(--accent-ink); font-size: 11px; font-weight: 700; vertical-align: 2px; }
+.no-results { margin: var(--s-2) var(--s-1) 0; }
+.recent-chips { display: flex; gap: var(--s-2); overflow-x: auto; scrollbar-width: none; margin: 0 calc(var(--s-4) * -1); padding: 0 var(--s-4) 2px; }
+.recent-chips::-webkit-scrollbar { display: none; }
+.chip {
+  flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: var(--tap-min); padding: 0 var(--s-4);
+  border: 1.5px solid var(--border); border-radius: var(--r-pill); background: var(--surface);
+  font-size: 15px; font-weight: 600; white-space: nowrap;
+}
+.chip small { color: var(--text-2); font-weight: 600; font-size: var(--fs-caption); }
+.chip:active { background: var(--surface-2); }
+.kcal-servings { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--s-3); align-items: end; }
+.kcal-box { position: relative; }
+.kcal-box input {
+  width: 100%; height: 68px; padding: 0 60px 0 var(--s-4);
+  border: 1.5px solid transparent; border-radius: var(--r-md); background: var(--surface-2);
+  font-size: 40px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums;
+  -webkit-appearance: none; appearance: none;
+}
+.kcal-box input::placeholder { color: var(--text-3); }
+.kcal-box input:focus { outline: none; border-color: var(--accent); background: var(--surface); }
+.kcal-box span { position: absolute; right: var(--s-4); bottom: 15px; pointer-events: none; font-size: 15px; font-weight: 700; color: var(--text-2); }
+.stepper { display: flex; align-items: center; gap: 2px; height: 68px; padding: 0 var(--s-2); border-radius: var(--r-md); background: var(--surface-2); }
+.step-btn { width: var(--tap-min); height: var(--tap-min); padding: 0; border: 0; border-radius: var(--r-sm); background: var(--surface); font-size: 24px; font-weight: 700; line-height: 1; color: var(--text); display: grid; place-items: center; }
+.step-btn:active { background: var(--border); }
+.stepper input { width: 48px; height: var(--tap-min); padding: 0; border: 0; background: transparent; text-align: center; font-size: 19px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.stepper input:focus { outline: 2px solid var(--accent); border-radius: var(--r-sm); }
+.serving-hint { margin: 6px var(--s-1) 0; min-height: 17px; }
+.meal-chips { border: 0; margin: var(--s-2) 0 0; padding: 0; min-width: 0; }
+.meal-chips legend { padding: 0; }
+.meal-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-2); }
+.meal-chip { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 58px; border: 2px solid transparent; border-radius: var(--r-md); background: var(--surface-2); font-size: var(--fs-caption); font-weight: 700; cursor: pointer; }
+.meal-chip input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.meal-chip .e { font-size: 20px; line-height: 1; }
+.meal-chip:has(input:checked) { background: var(--tint); border-color: var(--accent-strong); }
+.meal-chip:has(input:focus-visible) { outline: 3px solid var(--accent); outline-offset: 2px; }
+.extras { display: grid; gap: var(--s-2); margin-top: var(--s-3); }
+.toggle { position: relative; display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); min-height: var(--tap-min); padding: 0 var(--s-1); cursor: pointer; font-size: 15px; font-weight: 600; }
+.toggle input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.switch { flex: none; position: relative; width: 50px; height: 30px; border-radius: var(--r-pill); background: var(--border); transition: background-color var(--duration-fast); }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform var(--duration-fast) var(--ease); }
+.toggle input:checked + .switch { background: var(--accent-strong); }
+.toggle input:checked + .switch::after { transform: translateX(20px); }
+.toggle input:focus-visible + .switch { outline: 3px solid var(--accent); outline-offset: 2px; }
+.form-error { margin: var(--s-2) 0 0; color: var(--danger); font-size: 15px; font-weight: 600; text-align: center; }
+.form-error.is-inline { margin: var(--s-2) var(--s-1) 0; text-align: left; }
+.storage-banner { display: flex; align-items: center; gap: var(--s-2); margin: 0 0 var(--s-3); padding: var(--s-2) var(--s-3); border-radius: var(--r-md); background: var(--surface-2); color: var(--text-2); font-size: var(--fs-caption); font-weight: var(--fw-caption); }
+.storage-banner[hidden] { display: none; }
+.storage-banner svg { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.field-error { margin: var(--s-2) 0 0; color: var(--danger); font-size: 15px; font-weight: 600; }
+[aria-invalid="true"] { border-color: var(--danger) !important; }
+.kcal-box:has(#f-kcal[aria-invalid="true"]) { box-shadow: inset 0 0 0 2px var(--danger); }
+.sheet-actions { position: sticky; bottom: 0; z-index: 1; display: flex; gap: var(--s-2); margin-top: var(--s-2); padding: var(--s-2) 0 calc(var(--s-4) + var(--safe-bottom)); background: var(--surface); }
+.sheet-actions .btn-primary { flex: 1; }
+.shake { animation: shake 320ms var(--ease); }
+@keyframes shake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+
+/* ---------- Dialog / toast ---------- */
+.dialog {
+  position: fixed; z-index: 50; left: 50%; top: 50%;
+  width: min(340px, calc(100vw - var(--s-8)));
+  transform: translate(-50%, -50%) scale(.96); opacity: 0;
+  padding: var(--s-6) var(--s-5) var(--s-5); background: var(--surface); border-radius: var(--r-lg); box-shadow: var(--shadow-raised);
+  text-align: center; transition: opacity var(--duration-fast) var(--ease), transform var(--duration-fast) var(--ease);
+}
+.dialog.is-open { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.dialog-title { margin: 0 0 var(--s-2); font-size: 19px; font-weight: 700; }
+.dialog-msg { margin: 0 0 var(--s-5); color: var(--text-2); font-size: 15px; overflow-wrap: anywhere; }
+.dialog-actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-2); }
+.dialog-actions .btn { min-height: 48px; }
+.toast {
+  position: fixed; z-index: 60; left: 50%; bottom: calc(var(--tabbar-h) + var(--safe-bottom) + var(--dock-h) + var(--s-3)); /* just above the nav + Add dock */
+  transform: translate(-50%, 8px); max-width: calc(100vw - var(--s-8));
+  padding: var(--s-3) var(--s-5); border-radius: var(--r-pill); background: var(--text); color: var(--bg);
+  font-size: 15px; font-weight: 600; box-shadow: var(--shadow-raised); opacity: 0; pointer-events: none;
+  transition: opacity var(--duration-fast), transform var(--duration-fast) var(--ease);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.toast.is-open { opacity: 1; transform: translate(-50%, 0); }
+.toast.has-action { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-1) var(--s-1) var(--s-1) var(--s-5); pointer-events: auto; }
+.toast-btn { min-height: var(--tap-min); padding: 0 var(--s-4); border: 0; border-radius: var(--r-pill); background: transparent; color: var(--bg); font-weight: 800; text-decoration: underline; text-underline-offset: 3px; }
+.noscript { padding: var(--s-6); text-align: center; }
+@media (min-width: 760px) { .app { padding-top: calc(var(--safe-top) + var(--s-8)); } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; }
+}
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <main id="main">
+      <!-- ================= TODAY ================= -->
+      <section class="view" id="view-today" aria-labelledby="today-title">
+        <header class="page-header">
+          <div>
+            <p class="eyebrow" id="today-eyebrow">Hello</p>
+            <h1 class="page-title" id="today-title">Today</h1>
+          </div>
+          <button class="pill-btn" type="button" id="jump-today" data-action="jump-today" hidden>Today</button>
+        </header>
+
+        <p class="storage-banner" id="storage-banner" role="status" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M11 18h2"/></svg>
+          <span>Saving on this device only</span>
+        </p>
+        <section class="streak card" id="streak" data-active="0" aria-labelledby="streak-title">
+          <div class="streak-top">
+            <span class="flame" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path class="flame-outer" d="M12.6 2.2c.6 3-1 5-2.6 6.8C8.4 10.8 6.5 12.7 6.5 15.6a5.5 5.5 0 0 0 11 0c0-2.6-1.2-4.6-2.6-6.1-.2 1.5-.9 2.7-2.1 3.3.5-4-.7-7.9-.2-10.6z"/><path class="flame-inner" d="M12 13.2c-.9 1.1-2 2-2 3.6a2 2 0 0 0 4 0c0-1.4-.9-2.4-2-3.6z"/></svg>
+            </span>
+            <div class="streak-main">
+              <h2 class="streak-title" id="streak-title"><span id="streak-count">0</span> <span id="streak-unit">day streak</span></h2>
+              <p class="caption streak-msg" id="streak-msg">Log something today to start a streak</p>
+            </div>
+            <div class="streak-best"><span class="stat-num" id="streak-best">0</span><span class="caption">Best</span></div>
+          </div>
+          <ol class="week-row" id="week-row" aria-label="Last 7 days"></ol>
+          <div class="milestone" id="milestone" role="status" hidden>
+            <span aria-hidden="true">🎉</span><span id="milestone-text"></span>
+            <button class="icon-btn" type="button" data-action="dismiss-milestone" aria-label="Dismiss celebration">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>
+            </button>
+          </div>
+        </section>
+
+        <div class="day-nav card">
+          <button class="icon-btn" type="button" data-action="day-prev" id="day-prev" aria-label="Previous day">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+          </button>
+          <div class="day-nav-label" aria-live="polite">
+            <strong id="day-label">Today</strong>
+            <span class="caption" id="day-sub"></span>
+          </div>
+          <button class="icon-btn" type="button" data-action="day-next" id="day-next" aria-label="Next day">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+
+        <div class="ring-card card" id="ring-card" data-state="ok">
+          <div class="ring-wrap">
+            <svg class="ring" viewBox="0 0 200 200" role="img" aria-labelledby="ring-desc">
+              <title id="ring-desc">Calories</title>
+              <circle class="ring-track" cx="100" cy="100" r="86" stroke-width="16"/>
+              <circle class="ring-bar" id="ring-bar" cx="100" cy="100" r="86" stroke-width="16" stroke-dasharray="540.35" stroke-dashoffset="540.35"/>
+            </svg>
+            <div class="ring-center" aria-hidden="true">
+              <span class="caption ring-pre" id="ring-pre">Remaining</span>
+              <span class="ring-num" id="ring-num">2,000</span>
+              <span class="caption">kcal</span>
+            </div>
+          </div>
+          <p class="sr-only" id="ring-live" aria-live="polite"></p>
+          <div class="ring-stats">
+            <div><span class="stat-num" id="stat-eaten">0</span><span class="caption">Eaten</span></div>
+            <div><span class="stat-num" id="stat-goal">2,000</span><span class="caption">Goal</span></div>
+            <div><span class="stat-num" id="stat-pct">0%</span><span class="caption">of goal</span></div>
+          </div>
+        </div>
+
+        <div id="meals"></div>
+      </section>
+
+      <!-- ================= HISTORY ================= -->
+      <section class="view" id="view-history" aria-labelledby="history-title" hidden>
+        <header class="page-header">
+          <div>
+            <p class="eyebrow" id="history-range">Last 7 days</p>
+            <h1 class="page-title" id="history-title">History</h1>
+          </div>
+        </header>
+        <div class="card hist-stats">
+          <div><span class="big" id="hist-avg">—</span><span class="caption">7-day avg</span></div>
+          <div><span class="big" id="hist-goal">2,000</span><span class="caption">Daily goal</span></div>
+          <div><span class="big" id="hist-days">0/7</span><span class="caption">Days logged</span></div>
+        </div>
+        <div class="card chart-card">
+          <div id="chart"></div>
+          <div class="legend caption" aria-hidden="true">
+            <span><i></i>Under</span><span><i class="near"></i>90–100%</span><span><i class="over"></i>Over</span><span><i class="goal"></i><span id="legend-goal">Goal</span></span>
+          </div>
+        </div>
+        <p class="caption" id="hist-note" style="margin: var(--s-2) var(--s-1) 0"></p>
+        <h2 class="section-title">Days</h2>
+        <ul class="card day-list" id="day-list"></ul>
+      </section>
+
+      <!-- ================= SETTINGS ================= -->
+      <section class="view" id="view-settings" aria-labelledby="settings-title" hidden>
+        <header class="page-header">
+          <div>
+            <p class="eyebrow">Preferences &amp; data</p>
+            <h1 class="page-title" id="settings-title">Settings</h1>
+          </div>
+        </header>
+
+        <form class="card set-card" id="goal-form" novalidate>
+          <h2 class="set-title"><label for="goal-input">Daily calorie goal</label></h2>
+          <p class="caption set-help" id="goal-help">Between 500 and 10,000 kcal.</p>
+          <div class="goal-row">
+            <div class="input-suffix">
+              <input class="input" id="goal-input" inputmode="numeric" maxlength="6" aria-describedby="goal-help goal-error" enterkeyhint="done">
+              <span class="caption">kcal</span>
+            </div>
+            <button class="btn btn-primary btn-sm" type="submit" id="goal-save">Save</button>
+          </div>
+          <p class="field-error" id="goal-error" role="alert" hidden></p>
+        </form>
+
+        <div class="card set-card">
+          <h2 class="set-title">Food library</h2>
+          <p class="caption set-help" id="lib-info"></p>
+          <div class="btn-row">
+            <button class="btn btn-secondary btn-sm" type="button" data-action="import-foods">Import foods.json</button>
+            <button class="btn btn-secondary btn-sm" type="button" data-action="reset-foods" id="reset-foods" hidden>Use built-in list</button>
+          </div>
+          <h3 class="set-title" style="margin-top: var(--s-5)">My foods</h3>
+          <p class="caption" id="my-foods-empty" style="margin:0">Foods you save from the Add form show up here and in search.</p>
+          <ul class="my-foods" id="my-foods"></ul>
+        </div>
+
+        <div class="card set-card">
+          <h2 class="set-title">Your data</h2>
+          <p class="caption set-help">Everything is stored only on this device. Export a backup or move it to another device.</p>
+          <div class="btn-row">
+            <button class="btn btn-secondary btn-sm" type="button" data-action="export">Export JSON</button>
+            <button class="btn btn-secondary btn-sm" type="button" data-action="import-data">Import JSON</button>
+          </div>
+          <button class="btn btn-danger-ghost btn-sm btn-block" type="button" data-action="clear-all" style="margin-top: var(--s-2)">Clear all data</button>
+        </div>
+        <p class="caption foot" id="storage-note">Calorie Tracker · works offline</p>
+        <input type="file" id="file-data" accept="application/json,.json" hidden>
+        <input type="file" id="file-foods" accept="application/json,.json" hidden>
+      </section>
+    </main>
+
+    <!-- Add button sits in an opaque dock above the tab bar, so it never floats over list rows. -->
+    <div class="fab-dock" id="fab-dock">
+      <button class="fab" type="button" id="fab" data-action="open-add">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Add food</span>
+      </button>
+    </div>
+
+    <nav class="tabbar" aria-label="Primary">
+      <a class="tab" href="#today" data-tab="today">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 8.5 8.5"/></svg>
+        <span>Today</span>
+      </a>
+      <a class="tab" href="#history" data-tab="history">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V12M10 20V6M15 20v-9M20 20V9M3 20h18"/></svg>
+        <span>History</span>
+      </a>
+      <a class="tab" href="#settings" data-tab="settings">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>
+        <span>Settings</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- ================= ADD / EDIT SHEET ================= -->
+  <div class="backdrop" id="sheet-backdrop" data-action="close-sheet" hidden></div>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" tabindex="-1" hidden>
+    <form id="entry-form" novalidate autocomplete="off">
+      <div class="sheet-grabber" aria-hidden="true"></div>
+      <div class="sheet-head">
+        <h2 class="sheet-title" id="sheet-title">Add food</h2>
+        <span class="caption" id="sheet-date"></span>
+        <button class="icon-btn" type="button" data-action="close-sheet" aria-label="Close">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+
+      <div class="form-block">
+        <label class="field-label" for="f-name">Food</label>
+        <div class="search-box" id="name-field">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>
+          <input class="input" id="f-name" type="text" maxlength="60" placeholder="Search foods or type a name" enterkeyhint="next" spellcheck="false" aria-describedby="form-error results-status">
+          <button class="icon-btn clear-btn" type="button" data-action="clear-name" id="clear-name" aria-label="Clear food name" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>
+          </button>
+        </div>
+        <p class="sr-only" id="results-status" aria-live="polite"></p>
+        <ul class="results" id="results" aria-label="Matching foods" hidden></ul>
+        <p class="caption no-results" id="no-results" hidden>No matches. Enter the calories to add it manually.</p>
+      </div>
+
+      <div class="form-block" id="recent-wrap" hidden>
+        <p class="field-label" id="recent-label">Recent · tap to add</p>
+        <div class="recent-chips" id="recent" role="group" aria-labelledby="recent-label"></div>
+      </div>
+
+      <div class="form-block kcal-servings">
+        <div>
+          <label class="field-label" for="f-kcal">Calories</label>
+          <div class="kcal-box">
+            <input id="f-kcal" type="text" inputmode="numeric" maxlength="7" placeholder="0" enterkeyhint="done" aria-describedby="form-error">
+            <span aria-hidden="true">kcal</span>
+          </div>
+        </div>
+        <div>
+          <span class="field-label" id="servings-label">Servings</span>
+          <div class="stepper" role="group" aria-labelledby="servings-label">
+            <button class="step-btn" type="button" data-action="serv-dec" aria-label="Decrease servings by half">−</button>
+            <input id="f-servings" type="text" inputmode="decimal" maxlength="5" value="1" aria-label="Servings" enterkeyhint="done">
+            <button class="step-btn" type="button" data-action="serv-inc" aria-label="Increase servings by half">+</button>
+          </div>
+        </div>
+      </div>
+      <p class="caption serving-hint" id="serving-hint"></p>
+
+      <fieldset class="meal-chips">
+        <legend class="field-label">Meal</legend>
+        <div class="meal-grid" id="meal-grid"></div>
+      </fieldset>
+
+      <div class="extras">
+        <div>
+          <label class="field-label" for="f-qty">Quantity note (optional)</label>
+          <input class="input" id="f-qty" type="text" maxlength="40" placeholder="e.g. 1 cup, 2 slices" enterkeyhint="done">
+        </div>
+        <label class="toggle">
+          <span>Save to my foods</span>
+          <input type="checkbox" id="f-save-food">
+          <span class="switch" aria-hidden="true"></span>
+        </label>
+      </div>
+
+      <p class="form-error" id="form-error" role="alert" hidden></p>
+
+      <div class="sheet-actions">
+        <button class="btn btn-danger-ghost" type="button" id="sheet-delete" data-action="delete-current" hidden>Delete</button>
+        <button class="btn btn-primary" type="submit" id="sheet-save">Add</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ================= CONFIRM DIALOG ================= -->
+  <div class="backdrop backdrop-top" id="confirm-backdrop" hidden></div>
+  <div class="dialog" id="confirm" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-msg" hidden>
+    <h2 class="dialog-title" id="confirm-title">Are you sure?</h2>
+    <p class="dialog-msg" id="confirm-msg"></p>
+    <div class="dialog-actions">
+      <button type="button" class="btn btn-secondary" id="confirm-cancel">Cancel</button>
+      <button type="button" class="btn btn-danger" id="confirm-ok">Delete</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <noscript><p class="noscript">Calorie Tracker needs JavaScript enabled.</p></noscript>
+
+  <script>
+/* ==========================================================================
+   Calorie Tracker: single-file app (vanilla JS, no framework, no build step).
+   ========================================================================== */
+
+/* === FOOD LIBRARY: edit here ===========================================
+   One row per food: { name: '...', serving: '...', kcal: N }
+   kcal = calories for ONE serving as written. Values are typical, rounded
+   estimates based on USDA FoodData Central (SR Legacy / FNDDS); brands and
+   preparation vary. Keep one food per line so tools/export_foods.py can
+   regenerate foods.json. A foods.json import in Settings replaces this list
+   on the device; Settings > "Use built-in list" switches back.
+   ======================================================================== */
+const FOOD_LIBRARY = [
+  // Protein
+  { name: 'Chicken breast, cooked (skinless)', serving: '4 oz (113 g)', kcal: 187 },
+  { name: 'Chicken thigh, cooked (skinless)', serving: '4 oz (113 g)', kcal: 236 },
+  { name: 'Egg, large', serving: '1 egg (50 g)', kcal: 72 },
+  { name: 'Ground beef 85% lean, cooked', serving: '4 oz (113 g)', kcal: 283 },
+  { name: 'Ground turkey 93% lean, cooked', serving: '4 oz (113 g)', kcal: 241 },
+  { name: 'Sirloin steak, cooked (lean)', serving: '4 oz (113 g)', kcal: 229 },
+  { name: 'Salmon, Atlantic, cooked', serving: '4 oz (113 g)', kcal: 233 },
+  { name: 'Tuna, canned in water, drained', serving: '3 oz (85 g)', kcal: 73 },
+  { name: 'Turkey breast, roasted', serving: '4 oz (113 g)', kcal: 153 },
+  { name: 'Shrimp, cooked', serving: '3 oz (85 g)', kcal: 84 },
+  { name: 'Bacon, cooked', serving: '2 slices (16 g)', kcal: 87 },
+  { name: 'Black beans, cooked', serving: '1/2 cup (86 g)', kcal: 114 },
+  // Grains & bread
+  { name: 'White rice, cooked', serving: '1 cup (158 g)', kcal: 205 },
+  { name: 'Brown rice, cooked', serving: '1 cup (195 g)', kcal: 216 },
+  { name: 'Quinoa, cooked', serving: '1 cup (185 g)', kcal: 222 },
+  { name: 'Pasta, cooked', serving: '1 cup (140 g)', kcal: 221 },
+  { name: 'White bread', serving: '1 slice (28 g)', kcal: 75 },
+  { name: 'Whole wheat bread', serving: '1 slice (32 g)', kcal: 81 },
+  { name: 'Bagel, plain', serving: '1 medium (105 g)', kcal: 277 },
+  { name: 'Flour tortilla', serving: '1 medium, 8 in (49 g)', kcal: 146 },
+  { name: 'Corn tortilla', serving: '1 medium, 6 in (26 g)', kcal: 57 },
+  { name: 'Oatmeal, cooked with water', serving: '1 cup (234 g)', kcal: 166 },
+  { name: 'Rolled oats, dry', serving: '1/2 cup (40 g)', kcal: 150 },
+  { name: 'Breakfast cereal (corn flakes)', serving: '1 cup (28 g)', kcal: 100 },
+  // Dairy
+  { name: 'Milk, whole', serving: '1 cup (244 g)', kcal: 149 },
+  { name: 'Milk, 2%', serving: '1 cup (244 g)', kcal: 122 },
+  { name: 'Cheddar cheese', serving: '1 oz (28 g)', kcal: 114 },
+  { name: 'Mozzarella, part-skim', serving: '1 oz (28 g)', kcal: 72 },
+  { name: 'Cottage cheese, 2%', serving: '1/2 cup (113 g)', kcal: 92 },
+  { name: 'Greek yogurt, plain nonfat', serving: '1 container (170 g)', kcal: 100 },
+  { name: 'Yogurt, plain whole milk', serving: '1 cup (245 g)', kcal: 149 },
+  { name: 'Butter', serving: '1 tbsp (14 g)', kcal: 102 },
+  { name: 'Ice cream, vanilla', serving: '1/2 cup (66 g)', kcal: 137 },
+  // Fruit
+  { name: 'Apple', serving: '1 medium (182 g)', kcal: 95 },
+  { name: 'Banana', serving: '1 medium (118 g)', kcal: 105 },
+  { name: 'Orange', serving: '1 medium (131 g)', kcal: 62 },
+  { name: 'Strawberries', serving: '1 cup halves (152 g)', kcal: 49 },
+  { name: 'Blueberries', serving: '1 cup (148 g)', kcal: 84 },
+  { name: 'Grapes', serving: '1 cup (151 g)', kcal: 104 },
+  { name: 'Watermelon', serving: '1 cup diced (152 g)', kcal: 46 },
+  { name: 'Pineapple', serving: '1 cup chunks (165 g)', kcal: 82 },
+  { name: 'Mango', serving: '1 cup pieces (165 g)', kcal: 99 },
+  { name: 'Avocado', serving: '1/2 avocado (68 g)', kcal: 114 },
+  // Vegetables
+  { name: 'Broccoli, cooked', serving: '1 cup chopped (156 g)', kcal: 55 },
+  { name: 'Carrot, raw', serving: '1 medium (61 g)', kcal: 25 },
+  { name: 'Salad greens (romaine / mixed)', serving: '2 cups shredded (94 g)', kcal: 16 },
+  { name: 'Potato, baked with skin', serving: '1 medium (173 g)', kcal: 161 },
+  { name: 'Sweet potato, baked', serving: '1 medium (114 g)', kcal: 103 },
+  { name: 'Sweet corn, cooked', serving: '1 cup kernels (149 g)', kcal: 143 },
+  { name: 'Green beans, cooked', serving: '1 cup (125 g)', kcal: 44 },
+  { name: 'Tomato', serving: '1 medium (123 g)', kcal: 22 },
+  { name: 'Bell pepper, red', serving: '1 medium (119 g)', kcal: 37 },
+  // Fats, nuts & spreads
+  { name: 'Peanut butter', serving: '2 tbsp (32 g)', kcal: 190 },
+  { name: 'Almonds', serving: '1 oz, ~23 nuts (28 g)', kcal: 164 },
+  { name: 'Peanuts, dry roasted', serving: '1 oz (28 g)', kcal: 166 },
+  { name: 'Walnuts', serving: '1 oz, 14 halves (28 g)', kcal: 185 },
+  { name: 'Olive oil', serving: '1 tbsp (14 g)', kcal: 119 },
+  { name: 'Mayonnaise', serving: '1 tbsp (14 g)', kcal: 94 },
+  { name: 'Honey', serving: '1 tbsp (21 g)', kcal: 64 },
+  // Snacks & treats
+  { name: 'Potato chips', serving: '1 oz, ~15 chips (28 g)', kcal: 152 },
+  { name: 'Tortilla chips', serving: '1 oz (28 g)', kcal: 138 },
+  { name: 'Granola bar, chewy', serving: '1 bar (28 g)', kcal: 120 },
+  { name: 'Popcorn, air-popped', serving: '3 cups (24 g)', kcal: 93 },
+  { name: 'Chocolate chip cookie', serving: '1 medium (16 g)', kcal: 78 },
+  { name: 'Dark chocolate (70-85%)', serving: '1 oz (28 g)', kcal: 170 },
+  { name: 'Pizza, cheese', serving: '1 slice, 14 in (107 g)', kcal: 285 },
+  { name: 'French fries (fast food)', serving: '1 medium order (117 g)', kcal: 365 },
+  // Drinks
+  { name: 'Coffee, black', serving: '1 cup (8 fl oz)', kcal: 2 },
+  { name: 'Half-and-half (for coffee)', serving: '1 tbsp (15 g)', kcal: 20 },
+  { name: 'Sugar', serving: '1 tsp (4 g)', kcal: 16 },
+  { name: 'Cola soda', serving: '1 can (12 fl oz)', kcal: 140 },
+  { name: 'Diet soda', serving: '1 can (12 fl oz)', kcal: 0 },
+  { name: 'Orange juice', serving: '1 cup (8 fl oz)', kcal: 112 },
+  { name: 'Apple juice', serving: '1 cup (8 fl oz)', kcal: 114 },
+  { name: 'Beer, regular', serving: '1 can (12 fl oz)', kcal: 153 },
+  { name: 'Beer, light', serving: '1 can (12 fl oz)', kcal: 103 },
+  { name: 'Wine, red', serving: '1 glass (5 fl oz)', kcal: 125 },
+  { name: 'Wine, white', serving: '1 glass (5 fl oz)', kcal: 121 },
+  { name: 'Sports drink', serving: '1 bottle (20 fl oz)', kcal: 140 }
+];
+/* === end FOOD LIBRARY ================================================= */
+
+(function () {
+  'use strict';
+
+  /* ------------------------------------------------------------------ */
+  /* Config                                                              */
+  /* ------------------------------------------------------------------ */
+  const MEALS = [
+    { id: 'breakfast', label: 'Breakfast', emoji: '🍳' },
+    { id: 'lunch',     label: 'Lunch',     emoji: '🥗' },
+    { id: 'dinner',    label: 'Dinner',    emoji: '🍲' },
+    { id: 'snacks',    label: 'Snacks',    emoji: '🍎' }
+  ];
+  const MEAL = Object.fromEntries(MEALS.map((m) => [m.id, m]));
+  const DEFAULT_GOAL = 2000;
+  const GOAL_MIN = 500, GOAL_MAX = 10000;
+  const KCAL_MAX = 20000;            // per entry
+  const SERV_STEP = 0.5, SERV_MIN = 0.5, SERV_MAX = 99;
+  const RECENT_COUNT = 8;
+  const RESULT_COUNT = 6;
+  // Storage keys. Entries live in one record per day: ct:day:YYYY-MM-DD -> [entry, ...].
+  const DAY_PREFIX = 'ct:day:';
+  const KEYS = {
+    days: 'ct:days',                 // index of day keys that have records (for hosts that can't list keys)
+    settings: 'ct:settings',
+    customFoods: 'ct:customFoods',
+    foodLibrary: 'ct:foodLibrary',
+    bestStreak: 'ct:bestStreak',
+    milestones: 'ct:milestonesShown'
+  };
+  const LEGACY_ENTRIES_KEY = 'ct:entries'; // pre-release single-key format; migrated on load
+  const MILESTONES = [3, 7, 14, 30, 100];
+  const STREAK_CAP = 400;
+  const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+  /* ------------------------------------------------------------------ */
+  /* Storage adapter (async). Uses window.storage (a host-provided async  */
+  /* key/value API, e.g. when embedded) if present, else localStorage.    */
+  /* Values are JSON strings. Writes are serialized through one queue.    */
+  /* If window.storage fails, we switch to localStorage for good: the     */
+  /* switch is remembered in localStorage (ct:__backend) across reloads.  */
+  /* ------------------------------------------------------------------ */
+  const BACKEND_FLAG = 'ct:__backend'; // 'local' = window.storage failed earlier, use localStorage; 'local:partial' = it failed before its data was fully read
+  const StorageAdapter = (function () {
+    // Touching window.storage can itself throw (e.g. a blocked getter), so every access is guarded.
+    let ws = null;
+    try { ws = window.storage; } catch (_) { ws = null; }
+    let hostAvailable = false;
+    try { hostAvailable = !!(ws && typeof ws.get === 'function' && typeof ws.set === 'function'); } catch (_) { hostAvailable = false; }
+    const readFlag = () => { try { return window.localStorage.getItem(BACKEND_FLAG); } catch (_) { return null; } };
+    const writeFlag = (v) => { try { if (v) window.localStorage.setItem(BACKEND_FLAG, v); else window.localStorage.removeItem(BACKEND_FLAG); } catch (_) { /* disabled */ } };
+    const startFlag = readFlag();
+    let useHost = hostAvailable && !startFlag; // a remembered fallback wins: never go back to a store that lost writes
+    let switches = 0;
+    let onFallback = null;
+    const hostCache = new Map(); // key -> raw value read from / written to window.storage this session (merged on a boot-time switch)
+    const known = new Set();     // keys we know exist on the host (listed, read or written this session)
+
+    const local = {
+      async get(k) { try { return window.localStorage.getItem(k); } catch (_) { return null; } },
+      async set(k, v) { window.localStorage.setItem(k, v); },
+      async remove(k) { window.localStorage.removeItem(k); },
+      async list(prefix) {
+        const out = [];
+        try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.indexOf(prefix) === 0) out.push(k); } } catch (_) { /* disabled */ }
+        return out;
+      }
+    };
+    const canDelete = () => { try { return typeof ws.delete === 'function' || typeof ws.remove === 'function'; } catch (_) { return false; } };
+    // Host calls may throw synchronously or reject; both surface as a rejection of these async functions.
+    const host = {
+      async get(k) {
+        const r = await ws.get(k);
+        if (r == null) return null;
+        if (typeof r === 'string') return r;
+        if (typeof r === 'object' && 'value' in r) return r.value == null ? null : String(r.value);
+        return JSON.stringify(r);
+      },
+      async set(k, v) { await ws.set(k, v); },
+      async remove(k) {
+        if (typeof ws.delete === 'function') return ws.delete(k);
+        if (typeof ws.remove === 'function') return ws.remove(k);
+        return ws.set(k, '');
+      },
+      async list(prefix) {
+        if (typeof ws.list !== 'function') return [];
+        const r = await ws.list(prefix);
+        const keys = Array.isArray(r) ? r : (r && Array.isArray(r.keys) ? r.keys : []);
+        return keys.map((k) => (typeof k === 'string' ? k : k && k.key)).filter((k) => typeof k === 'string' && k.indexOf(prefix) === 0);
+      }
+    };
+    function noteHost(op, args, r) {
+      const k = args[0];
+      if (op === 'get' && r != null) { known.add(k); hostCache.set(k, r); }
+      else if (op === 'set') { known.add(k); hostCache.set(k, args[1]); }
+      else if (op === 'remove') { known.delete(k); hostCache.delete(k); }
+      else if (op === 'list') r.forEach((x) => known.add(x));
+    }
+
+    // Some hosts reject get() for a key they don't have. To tell "missing key" from "storage broken" we probe with a
+    // write + read. Hosts with delete get a throwaway ct:__probe that is removed straight away; hosts without delete get
+    // ct:meta, a small fixed metadata record (same value every time), so nothing junk lingers.
+    // A good result is reused for missing keys; any failure on a key we know exists triggers a fresh probe.
+    const PROBE_KEY = 'ct:__probe', META_KEY = 'ct:meta', META_VAL = '{"app":"calorie-tracker","schema":1}';
+    let probeOK = false, probing = null;
+    function probe() {
+      if (probeOK) return Promise.resolve(true);
+      if (!probing) {
+        probing = (async () => {
+          const del = canDelete();
+          const k = del ? PROBE_KEY : META_KEY, v = del ? '1' : META_VAL;
+          let ok = false;
+          try { await host.set(k, v); ok = (await host.get(k)) === v; } catch (_) { ok = false; }
+          if (del) { try { await host.remove(k); } catch (_) { /* best effort */ } }
+          return ok;
+        })().then((ok) => { probeOK = ok; probing = null; return ok; });
+      }
+      return probing;
+    }
+
+    function switchToLocal(op, err) {
+      if (!useHost) return;
+      useHost = false; switches++;
+      console.info('[calorie-tracker] window.storage failed (' + op + '); using localStorage from now on.', err && err.message ? err.message : '');
+      if (onFallback) { try { onFallback(); } catch (e) { console.info('[calorie-tracker] fallback copy failed', e && e.message); } }
+    }
+
+    /** Run op on window.storage; on a real failure do this call with localStorage, then switch to localStorage for good. */
+    async function run(op, args) {
+      if (useHost) {
+        try { const r = await host[op].apply(null, args); noteHost(op, args, r); return r; } catch (err) {
+          if (op === 'get' && useHost) {
+            const k = args[0];
+            if (!known.has(k)) {
+              if (await probe()) return null;                 // healthy host: the key just doesn't exist
+            } else {
+              probeOK = false;                                // a key we know exists failed: re-probe, retry once
+              if (await probe()) { try { const r = await host.get(k); noteHost(op, args, r); return r; } catch (_) { /* give up */ } }
+            }
+          }
+          if (useHost) {
+            const res = await local[op].apply(null, args);  // this call first, so the merge below includes it
+            switchToLocal(op, err);
+            return res;
+          }
+        }
+      }
+      return local[op].apply(null, args);
+    }
+
+    /** Read-only pass over window.storage (no fallback), used to recover data after a boot-time switch. Throws if day records can't be read. */
+    async function hostSnapshot(fixedKeys, dayPrefix, indexKey) {
+      const out = {};
+      const tryGet = async (k) => { try { return await host.get(k); } catch (_) { return null; } };
+      const idxRaw = await tryGet(indexKey);
+      if (idxRaw != null) out[indexKey] = idxRaw;
+      let listed = [];
+      try { listed = await host.list(dayPrefix); } catch (_) { listed = []; }
+      let idx = [];
+      try { idx = JSON.parse(idxRaw || '[]'); } catch (_) { idx = []; }
+      const dayKeys = Array.from(new Set(listed.concat((Array.isArray(idx) ? idx : []).map((d) => dayPrefix + d))));
+      for (const k of dayKeys) {
+        const raw = await host.get(k); // a failure here means the host still can't be read: abort
+        if (raw != null && raw !== '') out[k] = raw;
+      }
+      for (const k of fixedKeys) { const raw = await tryGet(k); if (raw != null && raw !== '') out[k] = raw; }
+      return out;
+    }
+
+    let queue = Promise.resolve();
+    function enqueue(fn) {
+      const p = queue.then(fn).then(() => true, (err) => { console.error('[calorie-tracker] storage write failed', err); return false; });
+      queue = p;
+      return p;
+    }
+    return {
+      get kind() { return useHost ? 'window.storage' : (hostAvailable ? 'localStorage (window.storage unavailable)' : 'localStorage'); },
+      get usingHost() { return useHost; },
+      get switches() { return switches; },
+      hostAvailable: hostAvailable,
+      startFlag: startFlag,
+      hostCache: hostCache,
+      setFlag: writeFlag,
+      hostSnapshot: hostSnapshot,
+      /** Called (synchronously) once when we switch from window.storage to localStorage. */
+      setFallbackHandler(fn) { onFallback = fn; },
+      // Reads wait for queued writes, so a read right after a write sees it.
+      get: (k) => queue.then(() => run('get', [k])),
+      list: (prefix) => queue.then(() => run('list', [prefix])),
+      set: (k, v) => enqueue(() => run('set', [k, v])),
+      remove: (k) => enqueue(() => run('remove', [k]))
+    };
+  })();
+
+  /* ------------------------------------------------------------------ */
+  /* Data model + validation                                              */
+  /* entry: { id, date:'YYYY-MM-DD', meal, name, kcal:int, servings, qty, */
+  /*          createdAt, updatedAt }                                      */
+  /* ------------------------------------------------------------------ */
+  function uid() {
+    try { if (window.crypto && typeof crypto.randomUUID === 'function') return crypto.randomUUID(); } catch (_) { /* insecure ctx */ }
+    return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+  }
+  const isPosInt = (n, max) => Number.isInteger(n) && n > 0 && n <= max;
+  const roundServ = (n) => Math.round(n * 100) / 100;
+
+  function cleanEntry(e) {
+    if (!e || typeof e !== 'object') return null;
+    const kcal = Number(e.kcal);
+    if (!isPosInt(kcal, KCAL_MAX)) return null;
+    if (typeof e.date !== 'string' || !DATE_RE.test(e.date)) return null;
+    const servings = Number(e.servings);
+    return {
+      id: typeof e.id === 'string' && e.id ? e.id : uid(),
+      date: e.date,
+      meal: MEAL[e.meal] ? e.meal : 'snacks',
+      name: String(e.name || '').trim().slice(0, 60) || 'Quick add',
+      kcal: kcal,
+      servings: Number.isFinite(servings) && servings > 0 && servings <= SERV_MAX ? roundServ(servings) : 1,
+      qty: String(e.qty || '').trim().slice(0, 40),
+      createdAt: Number.isFinite(e.createdAt) ? e.createdAt : Date.now(),
+      updatedAt: Number.isFinite(e.updatedAt) ? e.updatedAt : Date.now()
+    };
+  }
+  function cleanFood(f) {
+    if (!f || typeof f !== 'object') return null;
+    const name = String(f.name || '').trim().slice(0, 60);
+    const kcal = Math.round(Number(f.kcal));
+    if (!name || !Number.isFinite(kcal) || kcal < 0 || kcal > KCAL_MAX) return null;
+    return { name: name, serving: String(f.serving || '').trim().slice(0, 40) || '1 serving', kcal: kcal };
+  }
+  function cleanCustomFood(f) {
+    const c = cleanFood(f);
+    if (!c) return null;
+    return Object.assign({ id: typeof f.id === 'string' && f.id ? f.id : uid(), createdAt: Number.isFinite(f.createdAt) ? f.createdAt : Date.now() }, c);
+  }
+  function cleanGoal(g) { const n = Number(g); return Number.isInteger(n) && n >= GOAL_MIN && n <= GOAL_MAX ? n : null; }
+
+  /* In-memory cache = source of truth for rendering; persisted async. */
+  const db = { entries: [], goal: DEFAULT_GOAL, settingsUpdatedAt: 0, customFoods: [], libraryOverride: null, bestStreak: 0, milestonesShown: [] };
+
+  async function readJSON(key) {
+    const raw = await StorageAdapter.get(key);
+    if (raw == null || raw === '') return undefined;
+    try { return JSON.parse(raw); } catch (_) {
+      console.info('[calorie-tracker] unreadable data in ' + key + '; backed it up and reset.');
+      await StorageAdapter.set(key + ':corrupt-' + Date.now(), raw);
+      await StorageAdapter.remove(key);
+      return undefined;
+    }
+  }
+  /** Day keys from the ct:days index plus whatever the backend can list (covers records seeded directly into storage). */
+  async function dayKeys() {
+    const idx = await readJSON(KEYS.days);
+    const listed = (await StorageAdapter.list(DAY_PREFIX)).map((k) => k.slice(DAY_PREFIX.length));
+    const set = new Set((Array.isArray(idx) ? idx : []).concat(listed).filter((d) => typeof d === 'string' && DATE_RE.test(d)));
+    return Array.from(set).sort();
+  }
+  async function readDay(dateKey) {
+    const arr = await readJSON(DAY_PREFIX + dateKey);
+    return Array.isArray(arr) ? arr.map((e) => cleanEntry(Object.assign({}, e, { date: dateKey }))).filter(Boolean) : [];
+  }
+  /** Read everything through the adapter into a plain object (nothing is applied to db here). */
+  async function readEverything() {
+    const days = await dayKeys();
+    const [perDay, settings, custom, lib, best, shown] = await Promise.all([
+      Promise.all(days.map(readDay)), readJSON(KEYS.settings), readJSON(KEYS.customFoods), readJSON(KEYS.foodLibrary),
+      readJSON(KEYS.bestStreak), readJSON(KEYS.milestones)
+    ]);
+    return { entries: [].concat.apply([], perDay), settings: settings, custom: custom, lib: lib, best: best, shown: shown };
+  }
+  function applyData(d) {
+    db.entries = d.entries;
+    db.goal = (d.settings && cleanGoal(d.settings.goal)) || DEFAULT_GOAL;
+    db.settingsUpdatedAt = d.settings && Number.isFinite(d.settings.updatedAt) ? d.settings.updatedAt : 0;
+    db.customFoods = Array.isArray(d.custom) ? d.custom.map(cleanCustomFood).filter(Boolean) : [];
+    const libFoods = Array.isArray(d.lib) ? d.lib.map(cleanFood).filter(Boolean) : null;
+    db.libraryOverride = libFoods && libFoods.length ? libFoods : null;
+    db.bestStreak = Number.isInteger(d.best) && d.best > 0 ? d.best : 0;
+    db.milestonesShown = Array.isArray(d.shown) ? d.shown.filter((m) => MILESTONES.indexOf(m) >= 0) : [];
+  }
+  async function migrateLegacy() {
+    // One-time migration from the single-key format.
+    const legacy = await readJSON(LEGACY_ENTRIES_KEY);
+    if (!Array.isArray(legacy)) return;
+    const byDay = {};
+    legacy.map(cleanEntry).filter(Boolean).forEach((e) => { (byDay[e.date] = byDay[e.date] || []).push(e); });
+    for (const d of Object.keys(byDay)) {
+      const existing = await readDay(d);
+      await StorageAdapter.set(DAY_PREFIX + d, JSON.stringify(existing.concat(byDay[d])));
+    }
+    await StorageAdapter.set(KEYS.days, JSON.stringify(Array.from(new Set((await dayKeys()).concat(Object.keys(byDay)))).sort()));
+    await StorageAdapter.remove(LEGACY_ENTRIES_KEY);
+  }
+  let recoveryTried = false;
+  async function loadAll() {
+    // Last session fell back to localStorage before window.storage had been fully read: try reading it once more and merge.
+    if (!recoveryTried && StorageAdapter.startFlag === 'local:partial' && StorageAdapter.hostAvailable) { recoveryTried = true; await recoverFromHost(); }
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const before = StorageAdapter.switches;
+      await migrateLegacy();
+      const data = await readEverything();
+      // The store switched mid-read: this pass is half window.storage, half localStorage. The switch merged both into
+      // localStorage, so throw the half-loaded pass away and read again from that single store.
+      if (StorageAdapter.switches !== before) continue;
+      applyData(data);
+      return;
+    }
+    applyData(await readEverything()); // already on localStorage, so this can't switch again
+  }
+
+  /* ---------- Merging two copies of the data (used when switching stores) ----------
+     Entries: union by id, the newer updatedAt wins. Best streak: max. Milestones: union. Settings: the newest copy
+     (by updatedAt). My foods: union by id. Food library: the first copy that has one. Nothing is overwritten blindly. */
+  const parseRaw = (raw) => { if (raw == null || raw === '') return undefined; try { return JSON.parse(raw); } catch (_) { return undefined; } };
+  function localSnapshot() {
+    const out = {};
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.indexOf('ct:') === 0 && k !== BACKEND_FLAG && k.indexOf(':corrupt-') < 0) out[k] = localStorage.getItem(k);
+      }
+    } catch (_) { /* disabled */ }
+    return out;
+  }
+  function memorySnapshot() {
+    const out = {};
+    db.entries.forEach((e) => { const k = DAY_PREFIX + e.date; (out[k] = out[k] || []).push(e); });
+    Object.keys(out).forEach((k) => { out[k] = JSON.stringify(out[k]); });
+    out[KEYS.settings] = JSON.stringify({ goal: db.goal, updatedAt: db.settingsUpdatedAt || 0 });
+    out[KEYS.customFoods] = JSON.stringify(db.customFoods);
+    if (db.libraryOverride) out[KEYS.foodLibrary] = JSON.stringify(db.libraryOverride);
+    out[KEYS.bestStreak] = JSON.stringify(db.bestStreak);
+    out[KEYS.milestones] = JSON.stringify(db.milestonesShown);
+    return out;
+  }
+  /** Merge snapshots ({ key: rawJSON }), earlier ones win ties. Returns a new snapshot. */
+  function mergeSnapshots(snaps) {
+    const out = {};
+    const byDay = {};
+    let settings = null, custom = {}, lib, best = 0, shown = new Set();
+    snaps.forEach((snap) => {
+      Object.keys(snap).forEach((k) => {
+        const v = parseRaw(snap[k]);
+        if (k.indexOf(DAY_PREFIX) === 0) {
+          const d = k.slice(DAY_PREFIX.length);
+          if (!DATE_RE.test(d) || !Array.isArray(v)) return;
+          const m = byDay[d] = byDay[d] || {};
+          v.forEach((e) => {
+            const c = cleanEntry(Object.assign({}, e, { date: d }));
+            if (c && (!m[c.id] || c.updatedAt > m[c.id].updatedAt)) m[c.id] = c;
+          });
+        } else if (k === KEYS.settings) {
+          if (v && cleanGoal(v.goal) && (!settings || (Number(v.updatedAt) || 0) > (Number(settings.updatedAt) || 0))) settings = { goal: cleanGoal(v.goal), updatedAt: Number(v.updatedAt) || 0 };
+        } else if (k === KEYS.customFoods) {
+          if (Array.isArray(v)) v.map(cleanCustomFood).filter(Boolean).forEach((f) => { if (!custom[f.id]) custom[f.id] = f; });
+        } else if (k === KEYS.foodLibrary) {
+          if (lib === undefined && Array.isArray(v) && v.length) lib = v;
+        } else if (k === KEYS.bestStreak) {
+          if (Number.isInteger(v) && v > best) best = v;
+        } else if (k === KEYS.milestones) {
+          if (Array.isArray(v)) v.forEach((x) => { if (MILESTONES.indexOf(x) >= 0) shown.add(x); });
+        }
+      });
+    });
+    const dates = Object.keys(byDay).filter((d) => Object.keys(byDay[d]).length).sort();
+    dates.forEach((d) => { out[DAY_PREFIX + d] = JSON.stringify(Object.values(byDay[d]).sort((a, b) => a.createdAt - b.createdAt)); });
+    out[KEYS.days] = JSON.stringify(dates);
+    if (settings) out[KEYS.settings] = JSON.stringify(settings);
+    if (Object.keys(custom).length) out[KEYS.customFoods] = JSON.stringify(Object.values(custom));
+    if (lib) out[KEYS.foodLibrary] = JSON.stringify(lib);
+    if (best) out[KEYS.bestStreak] = JSON.stringify(best);
+    if (shown.size) out[KEYS.milestones] = JSON.stringify(Array.from(shown).sort((a, b) => a - b));
+    return out;
+  }
+  function writeLocal(snap) {
+    Object.keys(snap).forEach((k) => { try { localStorage.setItem(k, snap[k]); } catch (_) { /* full or disabled */ } });
+  }
+  function snapshotToData(snap) {
+    const dates = parseRaw(snap[KEYS.days]) || [];
+    return {
+      entries: [].concat.apply([], dates.map((d) => (parseRaw(snap[DAY_PREFIX + d]) || []).map((e) => cleanEntry(Object.assign({}, e, { date: d }))).filter(Boolean))),
+      settings: parseRaw(snap[KEYS.settings]), custom: parseRaw(snap[KEYS.customFoods]), lib: parseRaw(snap[KEYS.foodLibrary]),
+      best: parseRaw(snap[KEYS.bestStreak]), shown: parseRaw(snap[KEYS.milestones])
+    };
+  }
+  async function recoverFromHost() {
+    try {
+      const fixed = [KEYS.settings, KEYS.customFoods, KEYS.foodLibrary, KEYS.bestStreak, KEYS.milestones];
+      const hostSnap = await StorageAdapter.hostSnapshot(fixed, DAY_PREFIX, KEYS.days);
+      writeLocal(mergeSnapshots([localSnapshot(), hostSnap])); // localStorage has the newer writes, so it wins ties
+      StorageAdapter.setFlag('local');
+      console.info('[calorie-tracker] recovered data from window.storage into localStorage.');
+    } catch (_) { /* still unreadable: stay on localStorage and try again next time */ }
+  }
+  /** Rewrite the ct:day:<date> record for each given date from the in-memory cache (removed when empty). */
+  async function saveDays(dates) {
+    const writes = Array.from(new Set(dates)).map((d) => {
+      const list = db.entries.filter((e) => e.date === d).sort((a, b) => a.createdAt - b.createdAt);
+      return list.length ? StorageAdapter.set(DAY_PREFIX + d, JSON.stringify(list)) : StorageAdapter.remove(DAY_PREFIX + d);
+    });
+    const used = Array.from(new Set(db.entries.map((e) => e.date))).sort();
+    writes.push(StorageAdapter.set(KEYS.days, JSON.stringify(used)));
+    return (await Promise.all(writes)).every(Boolean);
+  }
+  /** Replace every day record (import / clear). */
+  async function saveAllDays() {
+    const old = await dayKeys();
+    return saveDays(old.concat(db.entries.map((e) => e.date)));
+  }
+  const save = {
+    day: (date) => saveDays([date]),
+    settings: () => StorageAdapter.set(KEYS.settings, JSON.stringify({ goal: db.goal, updatedAt: db.settingsUpdatedAt || 0 })),
+    customFoods: () => StorageAdapter.set(KEYS.customFoods, JSON.stringify(db.customFoods)),
+    library: () => db.libraryOverride
+      ? StorageAdapter.set(KEYS.foodLibrary, JSON.stringify(db.libraryOverride))
+      : StorageAdapter.remove(KEYS.foodLibrary),
+    best: () => StorageAdapter.set(KEYS.bestStreak, JSON.stringify(db.bestStreak)),
+    milestones: () => StorageAdapter.set(KEYS.milestones, JSON.stringify(db.milestonesShown))
+  };
+  const library = () => db.libraryOverride || FOOD_LIBRARY;
+  // When window.storage fails we switch to localStorage for good. Merge what we have (memory once loaded, otherwise
+  // whatever was read from window.storage so far) with what localStorage already holds, so nothing is lost or overwritten.
+  StorageAdapter.setFallbackHandler(() => {
+    const first = loaded ? memorySnapshot() : Object.fromEntries(StorageAdapter.hostCache);
+    const merged = mergeSnapshots([first, localSnapshot()]);
+    writeLocal(merged);
+    StorageAdapter.setFlag(loaded ? 'local' : 'local:partial');
+    if (loaded) {
+      // localStorage may have held extra entries from an earlier session: show the merged result.
+      Promise.resolve().then(() => {
+        const d = snapshotToData(merged);
+        if (d.entries.length !== db.entries.length) applyData(d);
+        render();
+      });
+    }
+  });
+
+  /* ------------------------------------------------------------------ */
+  /* Helpers                                                             */
+  /* ------------------------------------------------------------------ */
+  const $ = (sel) => document.querySelector(sel);
+  const intFmt = new Intl.NumberFormat('en-US');
+  const fmt = (n) => intFmt.format(Math.round(n));
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+  const pad = (n) => String(n).padStart(2, '0');
+  const toISO = (d) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  /** Local date key (YYYY-MM-DD, local time, never UTC). */
+  const dateKey = (d) => toISO(d);
+  // Test hook: ?today=YYYY-MM-DD pretends that date is today (streaks, history, day navigation, new entries).
+  const TODAY_OVERRIDE = (function () {
+    try { const v = new URLSearchParams(location.search).get('today'); return v && DATE_RE.test(v) && toISO(parseISO(v)) === v ? v : null; } catch (_) { return null; }
+  })();
+  const todayISO = () => TODAY_OVERRIDE || dateKey(new Date());
+  function parseISO(s) { const p = s.split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]); }
+  function shiftDay(iso, delta) { const d = parseISO(iso); d.setDate(d.getDate() + delta); return toISO(d); }
+  function dayName(iso) {
+    const t = todayISO();
+    if (iso === t) return 'Today';
+    if (iso === shiftDay(t, -1)) return 'Yesterday';
+    return parseISO(iso).toLocaleDateString('en-US', { weekday: 'long' });
+  }
+  function longDate(iso) {
+    const d = parseISO(iso);
+    const opts = { weekday: 'short', month: 'short', day: 'numeric' };
+    if (d.getFullYear() !== parseISO(todayISO()).getFullYear()) opts.year = 'numeric'; // ?today= decides "this year"
+    return d.toLocaleDateString('en-US', opts);
+  }
+  /** Default meal from the clock: 4:00–10:29 breakfast, 10:30–14:59 lunch, 17:00–21:29 dinner, else snacks. */
+  function defaultMeal(now) {
+    const d = now || new Date();
+    const h = d.getHours() + d.getMinutes() / 60;
+    if (h >= 4 && h < 10.5) return 'breakfast';
+    if (h >= 10.5 && h < 15) return 'lunch';
+    if (h >= 17 && h < 21.5) return 'dinner';
+    return 'snacks';
+  }
+  const sumKcal = (list) => list.reduce((t, e) => t + e.kcal, 0);
+  const entriesOn = (iso) => db.entries.filter((e) => e.date === iso).sort((a, b) => a.createdAt - b.createdAt);
+  function ringState(eaten, goal) {
+    if (eaten > goal) return 'over';
+    if (eaten >= goal * 0.9) return 'near';
+    return 'ok';
+  }
+  const servText = (s) => String(roundServ(s));
+  function qtyLine(e) {
+    const multi = e.servings && e.servings !== 1;
+    if (e.qty) return (multi ? servText(e.servings) + ' × ' : '') + e.qty;
+    return multi ? servText(e.servings) + ' servings' : '';
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* State                                                               */
+  /* ------------------------------------------------------------------ */
+  const state = {
+    view: 'today',
+    day: todayISO(),
+    streak: null,      // { current, todayLogged } from computeStreak()
+    milestone: null,   // milestone banner currently showing (session only)
+    // base = kcal per serving (null = nothing typed yet); picked = food chosen from search
+    sheet: { open: false, editingId: null, base: null, servings: 1, autoQty: '', opener: null, picked: null }
+  };
+
+  /* ------------------------------------------------------------------ */
+  /* Rendering: Today                                                     */
+  /* ------------------------------------------------------------------ */
+  const RING_C = 2 * Math.PI * 86;
+
+  function renderToday() {
+    const t = todayISO();
+    const isToday = state.day === t;
+    const h = new Date().getHours();
+    $('#today-eyebrow').textContent = isToday
+      ? (h < 5 ? 'Good night' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening')
+      : longDate(state.day);
+    $('#today-title').textContent = isToday ? 'Today' : dayName(state.day);
+    $('#jump-today').hidden = isToday;
+    updateFab();
+    $('#day-label').textContent = dayName(state.day);
+    $('#day-sub').textContent = longDate(state.day);
+    $('#day-next').disabled = state.day >= t;
+
+    const list = entriesOn(state.day);
+    const eaten = sumKcal(list);
+    const goal = db.goal;
+    $('#ring-card').dataset.state = ringState(eaten, goal);
+    const frac = goal ? Math.min(eaten / goal, 1) : 0;
+    const bar = $('#ring-bar');
+    bar.setAttribute('stroke-dasharray', RING_C.toFixed(2));
+    bar.setAttribute('stroke-dashoffset', (RING_C * (1 - frac)).toFixed(2));
+    const over = eaten - goal;
+    $('#ring-pre').textContent = over > 0 ? 'Over by' : 'Remaining';
+    $('#ring-num').textContent = fmt(Math.abs(goal - eaten));
+    $('#stat-eaten').textContent = fmt(eaten);
+    $('#stat-goal').textContent = fmt(goal);
+    $('#stat-pct').textContent = (goal ? Math.round((eaten / goal) * 100) : 0) + '%';
+    if (!loaded) { $('#ring-num').textContent = '–'; $('#stat-goal').textContent = '–'; $('#stat-pct').textContent = '–'; } // no default goal flash while loading
+    const desc = fmt(eaten) + ' of ' + fmt(goal) + ' kcal eaten. ' +
+      (over > 0 ? 'Over by ' + fmt(over) + ' kcal.' : fmt(goal - eaten) + ' kcal remaining.');
+    $('#ring-desc').textContent = desc;
+    $('#ring-live').textContent = desc;
+
+    if (!list.length) {
+      $('#meals').innerHTML =
+        '<div class="empty card" id="empty-day"><div class="empty-emoji" aria-hidden="true">🥣</div>' +
+        '<p class="empty-title">' + (isToday ? 'Nothing logged yet' : 'Nothing logged this day') + '</p>' +
+        '<p class="empty-text">' + (isToday ? 'Tap “Add food” to log what you eat. The ring fills up toward your daily goal.' : 'Tap “Add food” to log something for ' + esc(longDate(state.day)) + '.') + '</p></div>';
+      return;
+    }
+    $('#meals').innerHTML = MEALS.map((m) => {
+      const items = list.filter((e) => e.meal === m.id);
+      return '<section class="meal card" data-meal="' + m.id + '" aria-labelledby="meal-h-' + m.id + '">' +
+        '<div class="meal-head"><span class="meal-emoji" aria-hidden="true">' + m.emoji + '</span>' +
+        '<h2 class="meal-name" id="meal-h-' + m.id + '">' + m.label + '</h2>' +
+        '<span class="meal-total" data-subtotal="' + m.id + '">' + fmt(sumKcal(items)) + ' <small>kcal</small></span>' +
+        '<button class="icon-btn meal-add" type="button" data-action="open-add" data-meal="' + m.id + '" aria-label="Add to ' + m.label + '">' +
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v12M6 12h12"/></svg></button></div>' +
+        (items.length
+          ? '<ul class="entries">' + items.map((e) => {
+              const q = qtyLine(e);
+              return '<li><button class="entry" type="button" data-action="edit" data-id="' + esc(e.id) + '" aria-label="Edit ' + esc(e.name) + ', ' + fmt(e.kcal) + ' kcal' + (q ? ', ' + esc(q) : '') + '">' +
+                '<span class="entry-text"><span class="entry-name">' + esc(e.name) + '</span>' +
+                (q ? '<span class="entry-sub caption">' + esc(q) + '</span>' : '') + '</span>' +
+                '<span class="entry-kcal">' + fmt(e.kcal) + ' <small>kcal</small></span></button></li>';
+            }).join('') + '</ul>'
+          : '<p class="caption meal-empty">Nothing yet</p>') +
+        '</section>';
+    }).join('');
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Rendering: History (last 7 days ending today)                        */
+  /* ------------------------------------------------------------------ */
+  function lastDays(n) {
+    const t = todayISO();
+    const out = [];
+    for (let i = n - 1; i >= 0; i--) out.push(shiftDay(t, -i));
+    return out;
+  }
+  function renderHistory() {
+    const days = lastDays(7);
+    const goal = db.goal;
+    const totals = days.map((d) => sumKcal(db.entries.filter((e) => e.date === d)));
+    const logged = totals.filter((v) => v > 0);
+    const avg = logged.length ? Math.round(logged.reduce((a, b) => a + b, 0) / logged.length) : 0;
+    const t = todayISO();
+    $('#history-range').textContent = longDate(days[0]) + ' – ' + longDate(days[6]);
+    $('#hist-avg').textContent = logged.length ? fmt(avg) : '—';
+    $('#hist-avg').dataset.value = String(avg);
+    $('#hist-goal').textContent = fmt(goal);
+    $('#hist-days').textContent = logged.length + '/7';
+    $('#hist-note').textContent = logged.length
+      ? 'Average over ' + logged.length + ' logged day' + (logged.length === 1 ? '' : 's') + ' (days with nothing logged are skipped): ' +
+        (avg > goal ? fmt(avg - goal) + ' kcal over' : fmt(goal - avg) + ' kcal under') + ' your goal.'
+      : 'Log some food and your week shows up here.';
+
+    // Pure SVG bar chart (viewBox units).
+    const W = 320, H = 180, top = 18, bottom = 150, left = 4, right = 316;
+    const max = Math.max(goal * 1.2, Math.max.apply(null, totals) * 1.1, 1);
+    const y = (v) => bottom - (v / max) * (bottom - top);
+    const slot = (right - left) / 7, bw = 26;
+    let svg = '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-labelledby="chart-title">' +
+      '<title id="chart-title">Calories per day for the last 7 days against a goal of ' + fmt(goal) + ' kcal: ' +
+      days.map((d, i) => longDate(d) + ' ' + fmt(totals[i])).join(', ') + '</title>';
+    days.forEach((d, i) => {
+      const cx = left + slot * i + slot / 2;
+      const x = (cx - bw / 2).toFixed(1);
+      if (totals[i] > 0) {
+        const hh = Math.max(bottom - y(totals[i]), 6);
+        svg += '<rect class="bar" data-day="' + d + '" data-kcal="' + totals[i] + '" data-state="' + ringState(totals[i], goal) + '" x="' + x + '" y="' + (bottom - hh).toFixed(1) + '" width="' + bw + '" height="' + hh.toFixed(1) + '" rx="8"/>';
+        const label = totals[i] >= 1000 ? (totals[i] / 1000).toFixed(1) + 'k' : String(totals[i]);
+        const inside = hh >= 26; // value sits inside the top of tall bars, above short ones
+        svg += '<text class="val' + (inside ? ' val-in' : '') + '" x="' + cx.toFixed(1) + '" y="' + (inside ? bottom - hh + 15 : bottom - hh - 6).toFixed(1) + '">' + label + '</text>';
+      }
+      const lbl = d === t ? 'Today' : parseISO(d).toLocaleDateString('en-US', { weekday: 'short' });
+      svg += '<text class="day' + (d === t ? ' is-today' : '') + '" x="' + cx.toFixed(1) + '" y="' + (bottom + 22) + '">' + lbl + '</text>';
+    });
+    const gy = y(goal);
+    svg += '<line class="baseline" x1="' + left + '" x2="' + right + '" y1="' + bottom + '" y2="' + bottom + '"/>';
+    svg += '<line class="goal-line" x1="' + left + '" x2="' + right + '" y1="' + gy.toFixed(1) + '" y2="' + gy.toFixed(1) + '"/>';
+    svg += '</svg>';
+    $('#chart').innerHTML = svg;
+    $('#legend-goal').textContent = 'Goal ' + fmt(goal);
+
+    $('#day-list').innerHTML = days.map((d, i) => ({ d: d, v: totals[i] })).reverse().map((o) => {
+      const n = db.entries.filter((e) => e.date === o.d).length;
+      return '<li><button class="day-row" type="button" data-action="goto-day" data-day="' + o.d + '" aria-label="' + esc(dayName(o.d) + ', ' + longDate(o.d)) + ': ' + fmt(o.v) + ' kcal. Open day">' +
+        '<span class="dot" data-state="' + (o.v > 0 ? ringState(o.v, goal) : 'none') + '" aria-hidden="true"></span>' +
+        '<span class="grow"><span style="font-weight:600">' + esc(dayName(o.d)) + '</span> <span class="caption">' + esc(longDate(o.d)) + (n ? ' · ' + n + ' item' + (n === 1 ? '' : 's') : '') + '</span></span>' +
+        '<span class="entry-kcal">' + (o.v ? fmt(o.v) + ' <small>kcal</small>' : '<small>—</small>') + '</span></button></li>';
+    }).join('');
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Rendering: Settings                                                  */
+  /* ------------------------------------------------------------------ */
+  function renderSettings() {
+    if (document.activeElement !== $('#goal-input')) $('#goal-input').value = String(db.goal);
+    const lib = library();
+    $('#lib-info').textContent = (db.libraryOverride ? 'Imported list: ' : 'Built-in list: ') + lib.length +
+      ' foods with typical calories (USDA-based estimates). Import a foods.json file (an array of {name, serving, kcal}) to replace it.';
+    $('#lib-info').dataset.count = String(lib.length);
+    $('#reset-foods').hidden = !db.libraryOverride;
+    const mine = db.customFoods.slice().sort((a, b) => a.name.localeCompare(b.name));
+    $('#my-foods-empty').hidden = mine.length > 0;
+    $('#my-foods').innerHTML = mine.map((f) =>
+      '<li><span class="grow"><span>' + esc(f.name) + '</span><span class="caption">' + esc(f.serving) + ' · ' + fmt(f.kcal) + ' kcal</span></span>' +
+      '<button class="icon-btn del-btn" type="button" data-action="delete-food" data-id="' + esc(f.id) + '" aria-label="Delete ' + esc(f.name) + ' from my foods">' +
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg></button></li>'
+    ).join('');
+    $('#storage-note').textContent = 'Calorie Tracker · works offline · saved in ' + StorageAdapter.kind + ' on this device';
+  }
+
+
+  /* ------------------------------------------------------------------ */
+  /* Streaks: derived from the ct:day:<date> records on every refresh     */
+  /* (no running counter). Best streak + shown milestones are persisted.  */
+  /* ------------------------------------------------------------------ */
+  const MILESTONE_TEXT = {
+    3: '3-day streak! Nice start.',
+    7: '7-day streak! A whole week of logging.',
+    14: '14-day streak! Two weeks strong.',
+    30: '30-day streak! A full month. Impressive.',
+    100: '100-day streak! Incredible consistency.'
+  };
+  /** Walk back one local day at a time over the in-memory day records (authoritative once loaded; no storage reads).
+      Start today if it has entries, else yesterday (keeps the streak alive mid-morning). */
+  function computeStreak() {
+    const logged = new Set(db.entries.map((e) => e.date));
+    const t = todayISO();
+    const todayLogged = logged.has(t);
+    let d = todayLogged ? t : shiftDay(t, -1);
+    let n = 0;
+    while (n < STREAK_CAP && logged.has(d)) { n++; d = shiftDay(d, -1); }
+    return { current: n, todayLogged: todayLogged };
+  }
+  let streakSeq = 0;
+  /** True once loadAll() has finished at boot. Until then streaks are not computed, persisted or celebrated. */
+  let loaded = false;
+  async function refreshStreak() {
+    if (!loaded) return; // boot: stored best/milestones aren't known yet, so never derive or write anything
+    const seq = ++streakSeq;
+    const s = computeStreak();
+    state.streak = s;
+    const best = Math.max(db.bestStreak, s.current); // best = max(stored, current); never decreases
+    const bestChanged = best !== db.bestStreak;
+    db.bestStreak = best;
+    const shown = new Set(db.milestonesShown);
+    const fresh = MILESTONES.filter((m) => s.current >= m && !shown.has(m));
+    if (fresh.length) {
+      db.milestonesShown = db.milestonesShown.concat(fresh).sort((x, y) => x - y);
+      state.milestone = Math.max.apply(null, fresh); // several at once (e.g. after import): celebrate only the biggest
+    }
+    renderStreak();
+    document.documentElement.dataset.streakSeq = String(seq);
+    if (bestChanged) await save.best();
+    if (fresh.length) await save.milestones();
+  }
+  function renderStreak() {
+    const t = todayISO();
+    const box = $('#streak');
+    box.setAttribute('aria-busy', String(!state.streak));
+    if (!state.streak) {
+      // Still loading: neutral placeholder rather than a misleading "0 / Best 0".
+      box.dataset.active = '0';
+      box.dataset.loading = '1';
+      $('#streak-count').textContent = '–';
+      $('#streak-unit').textContent = 'day streak';
+      $('#streak-best').textContent = '–';
+      $('#streak-msg').textContent = 'Checking your streak…';
+    } else {
+      const s = state.streak;
+      const n = s.current;
+      const best = Math.max(db.bestStreak, n);
+      delete box.dataset.loading;
+      box.dataset.active = n > 0 ? '1' : '0';
+      $('#streak-count').textContent = fmt(n);
+      $('#streak-unit').textContent = 'day streak'; // one pattern for every count: "1 day streak", "3 day streak"
+      $('#streak-best').textContent = fmt(best);
+      const days = n === 1 ? '1 day' : fmt(n) + ' days';
+      let msg;
+      if (n > 0) msg = s.todayLogged ? days + ' in a row, keep it going!' : days + ' in a row. Log today to keep it going!';
+      else if (best > 0) msg = 'Your best is ' + (best === 1 ? '1 day' : fmt(best) + ' days') + '. Log something today to start a new streak';
+      else msg = 'Log something today to start a streak';
+      $('#streak-msg').textContent = msg;
+    }
+    const logged = new Set(db.entries.map((e) => e.date));
+    $('#week-row').innerHTML = lastDays(7).map((d) => {
+      const st = !state.streak ? 'empty' : logged.has(d) ? 'done' : d === t ? 'pending' : 'empty';
+      const label = (d === t ? 'Today' : longDate(d)) + ': ' + (st === 'done' ? 'logged' : st === 'pending' ? 'not logged yet' : 'not logged');
+      const wd = d === t ? 'Today' : parseISO(d).toLocaleDateString('en-US', { weekday: 'narrow' });
+      return '<li class="wk" data-day="' + d + '" data-state="' + st + '" aria-label="' + esc(label) + '"><span class="wk-dot" aria-hidden="true">' +
+        (st === 'done' ? '<svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9"/></svg>' : '') + '</span>' +
+        '<span class="wk-lbl" aria-hidden="true">' + wd + '</span></li>';
+    }).join('');
+    const m = state.milestone;
+    $('#milestone').hidden = !m;
+    if (m) { $('#milestone-text').textContent = MILESTONE_TEXT[m]; $('#milestone').dataset.milestone = String(m); }
+  }
+
+  /** The floating Add button shows on the Today screen. */
+  function updateFab() {
+    const show = state.view === 'today';
+    $('#fab-dock').hidden = !show;
+    document.body.classList.toggle('has-dock', show);
+  }
+
+  /** Sync render from the in-memory cache, then re-derive the streak from storage. Called after every add/edit/delete/undo/import. */
+  function render() {
+    renderToday(); renderHistory(); renderSettings(); renderStreak(); refreshStreak();
+    // window.storage exists but failed, so we're on localStorage: say so, gently.
+    $('#storage-banner').hidden = !(loaded && StorageAdapter.hostAvailable && !StorageAdapter.usingHost);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Routing: #today, #history, #settings                                */
+  /* ------------------------------------------------------------------ */
+  const VIEWS = ['today', 'history', 'settings'];
+  function route() {
+    let v = (location.hash || '#today').slice(1);
+    if (VIEWS.indexOf(v) < 0) v = 'today';
+    state.view = v;
+    VIEWS.forEach((name) => {
+      $('#view-' + name).hidden = name !== v;
+      const tab = document.querySelector('[data-tab="' + name + '"]');
+      if (name === v) tab.setAttribute('aria-current', 'page'); else tab.removeAttribute('aria-current');
+    });
+    updateFab();
+    window.scrollTo(0, 0);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Food search (library + my foods)                                     */
+  /* ------------------------------------------------------------------ */
+  let searchPool = [];
+  function allFoods() {
+    return db.customFoods.map((f) => ({ name: f.name, serving: f.serving, kcal: f.kcal, custom: true }))
+      .concat(library().map((f) => ({ name: f.name, serving: f.serving, kcal: f.kcal, custom: false })));
+  }
+  /** Case-insensitive substring match anywhere in the name; prefix and word-start matches rank first. */
+  function searchFoods(q) {
+    q = q.trim().toLowerCase();
+    if (!q) return [];
+    const scored = [];
+    allFoods().forEach((f) => {
+      const n = f.name.toLowerCase();
+      const at = n.indexOf(q);
+      if (at < 0) return;
+      const score = (at === 0 ? 0 : /[\s(,/-]/.test(n[at - 1]) ? 1 : 2) - (f.custom ? 0.5 : 0);
+      scored.push({ f: f, score: score, at: at });
+    });
+    scored.sort((a, b) => a.score - b.score || a.f.name.localeCompare(b.f.name));
+    return scored.slice(0, RESULT_COUNT).map((s) => Object.assign({ at: s.at }, s.f));
+  }
+  function highlight(name, at, len) {
+    if (at < 0 || !len) return esc(name);
+    return esc(name.slice(0, at)) + '<mark>' + esc(name.slice(at, at + len)) + '</mark>' + esc(name.slice(at + len));
+  }
+  function renderResults() {
+    const q = $('#f-name').value;
+    const sh = state.sheet;
+    $('#clear-name').hidden = !q;
+    // Results hide once a food is picked (until the name is edited again) and while editing an entry's original name.
+    const showSearch = !!q.trim() && !(sh.picked && sh.picked.name === q) && !(sh.editingId && sh.originalName === q);
+    searchPool = showSearch ? searchFoods(q) : [];
+    const ul = $('#results');
+    ul.hidden = !searchPool.length;
+    $('#no-results').hidden = !(showSearch && !searchPool.length);
+    $('#results-status').textContent = showSearch ? (searchPool.length ? searchPool.length + ' matching foods' : 'No matching foods') : '';
+    const len = q.trim().length;
+    ul.innerHTML = searchPool.map((f, i) =>
+      '<li><button class="result" type="button" data-action="pick-food" data-idx="' + i + '" aria-label="' + esc(f.name) + (f.custom ? ' (my food)' : '') + ', ' + esc(f.serving) + ', ' + fmt(f.kcal) + ' kcal">' +
+      '<span class="result-text"><span class="result-name">' + highlight(f.name, f.at, len) + (f.custom ? '<span class="badge">My food</span>' : '') + '</span>' +
+      '<span class="caption">' + esc(f.serving) + '</span></span>' +
+      '<span class="result-kcal">' + fmt(f.kcal) + ' <small>kcal</small></span></button></li>'
+    ).join('');
+    renderRecent();
+  }
+  /** Last ~8 unique foods (by name), newest first. */
+  function recentFoods() {
+    const seen = new Set();
+    const out = [];
+    db.entries.slice().sort((a, b) => b.createdAt - a.createdAt).forEach((e) => {
+      const k = e.name.toLowerCase();
+      if (seen.has(k) || out.length >= RECENT_COUNT) return;
+      seen.add(k); out.push(e);
+    });
+    return out;
+  }
+  function renderRecent() {
+    const show = !state.sheet.editingId && !$('#f-name').value.trim();
+    const items = show ? recentFoods() : [];
+    $('#recent-wrap').hidden = !items.length;
+    $('#recent').innerHTML = items.map((e) =>
+      '<button class="chip" type="button" data-action="quick-add" data-id="' + esc(e.id) + '" aria-label="Add ' + esc(e.name) + ', ' + fmt(e.kcal) + ' kcal">' +
+      esc(e.name) + ' <small>' + fmt(e.kcal) + '</small></button>'
+    ).join('');
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Add / edit sheet                                                     */
+  /* ------------------------------------------------------------------ */
+  function selectedMeal() { const r = document.querySelector('input[name="meal"]:checked'); return r ? r.value : defaultMeal(); }
+  function setMeal(id) { const r = document.querySelector('input[name="meal"][value="' + id + '"]'); if (r) r.checked = true; }
+  function renderMealChips() {
+    $('#meal-grid').innerHTML = MEALS.map((m) =>
+      '<label class="meal-chip" data-meal="' + m.id + '"><input type="radio" name="meal" value="' + m.id + '">' +
+      '<span class="e" aria-hidden="true">' + m.emoji + '</span>' + m.label + '</label>'
+    ).join('');
+  }
+  /** Servings drive calories: kcal = round(base × servings) whenever a per-serving base is known. */
+  function setServings(n, fromInput) {
+    const sh = state.sheet;
+    n = roundServ(Math.min(SERV_MAX, Math.max(0, n)));
+    sh.servings = n;
+    if (!fromInput) $('#f-servings').value = servText(n);
+    if (sh.base != null && n > 0) $('#f-kcal').value = String(Math.round(sh.base * n));
+    renderServingHint();
+  }
+  function renderServingHint() {
+    const sh = state.sheet;
+    let txt = '';
+    if (sh.picked && sh.base != null) txt = servText(sh.servings) + ' × ' + sh.picked.serving + ' · ' + fmt(sh.base) + ' kcal each';
+    else if (sh.base != null && sh.servings !== 1) txt = servText(sh.servings) + ' × ' + fmt(sh.base) + ' kcal';
+    $('#serving-hint').textContent = txt;
+  }
+  function pickFood(f) {
+    const sh = state.sheet;
+    sh.picked = { name: f.name, serving: f.serving };
+    sh.base = f.kcal;
+    $('#f-name').value = f.name;
+    const qty = $('#f-qty');
+    if (!qty.value || qty.value === sh.autoQty) { qty.value = f.serving; sh.autoQty = f.serving; }
+    setServings(sh.servings > 0 ? sh.servings : 1);
+    hideError();
+    renderResults();
+    $('#f-kcal').focus({ preventScroll: true });
+  }
+
+  /* The sheet has one error message (#form-error). Name errors show it inline right under the name/search
+     field; every other error shows it in its usual place above the Add button. */
+  const formErrorHome = document.createComment(' #form-error home ');
+  $('#form-error').before(formErrorHome);
+  function showError(msg, shakeEl, field) {
+    const el = $('#form-error');
+    if (field === 'name') { $('#name-field').after(el); el.classList.add('is-inline'); $('#f-name').setAttribute('aria-invalid', 'true'); }
+    else { formErrorHome.after(el); el.classList.remove('is-inline'); $('#f-name').removeAttribute('aria-invalid'); }
+    el.dataset.field = field || '';
+    el.textContent = msg; el.hidden = false;
+    if (shakeEl) { shakeEl.classList.remove('shake'); void shakeEl.offsetWidth; shakeEl.classList.add('shake'); }
+  }
+  function hideError() {
+    const el = $('#form-error');
+    el.hidden = true; el.dataset.field = ''; el.classList.remove('is-inline');
+    formErrorHome.after(el);
+    $('#f-kcal').removeAttribute('aria-invalid'); $('#f-name').removeAttribute('aria-invalid');
+  }
+
+  function setBackgroundInert(on) {
+    ['#main', '.tabbar', '#fab-dock'].forEach((s) => { const el = $(s); if (on) el.setAttribute('inert', ''); else el.removeAttribute('inert'); });
+    document.body.classList.toggle('no-scroll', on);
+  }
+  function openLayer(layer, backdrop) {
+    layer.hidden = false; backdrop.hidden = false;
+    void layer.offsetWidth; // reflow so the transition runs
+    layer.classList.add('is-open'); backdrop.classList.add('is-open');
+  }
+  function closeLayer(layer, backdrop) {
+    layer.classList.remove('is-open'); backdrop.classList.remove('is-open');
+    let done = false;
+    const end = () => {
+      if (done) return; done = true;
+      if (!layer.classList.contains('is-open')) { layer.hidden = true; backdrop.hidden = true; }
+    };
+    layer.addEventListener('transitionend', end, { once: true });
+    setTimeout(end, 350);
+  }
+
+  function openSheet(entry, meal) {
+    const sh = state.sheet;
+    sh.open = true;
+    sh.opener = document.activeElement;
+    sh.editingId = entry ? entry.id : null;
+    sh.date = entry ? entry.date : state.day;     // target day, fixed while the sheet is open
+    sh.originalName = entry ? entry.name : null;
+    sh.picked = null;
+    sh.autoQty = '';
+    sh.servings = entry ? entry.servings : 1;
+    sh.base = entry ? entry.kcal / entry.servings : null;
+    $('#f-name').value = entry ? entry.name : '';
+    $('#f-kcal').value = entry ? String(entry.kcal) : '';
+    $('#f-servings').value = servText(sh.servings);
+    $('#f-qty').value = entry ? entry.qty : '';
+    $('#f-save-food').checked = false;
+    setMeal(entry ? entry.meal : (MEAL[meal] ? meal : defaultMeal()));
+    $('#sheet-title').textContent = entry ? 'Edit food' : 'Add food';
+    $('#sheet-date').textContent = '· ' + dayName(entry ? entry.date : state.day);
+    $('#sheet-save').textContent = entry ? 'Save changes' : 'Add';
+    $('#sheet-delete').hidden = !entry;
+    hideError();
+    renderResults();
+    renderServingHint();
+    const sheet = $('#sheet');
+    sheet.scrollTop = 0;
+    setBackgroundInert(true);
+    openLayer(sheet, $('#sheet-backdrop'));
+    // Desktop: put the cursor in search for fast typing. Touch: focus the dialog so the keyboard doesn't cover the form.
+    if (!entry && window.matchMedia('(hover: hover) and (pointer: fine)').matches) $('#f-name').focus({ preventScroll: true });
+    else sheet.focus({ preventScroll: true });
+  }
+  function closeSheet() {
+    const sh = state.sheet;
+    if (!sh.open) return;
+    sh.open = false;
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+    setBackgroundInert(false);
+    closeLayer($('#sheet'), $('#sheet-backdrop'));
+    if (sh.opener && document.contains(sh.opener) && sh.opener.focus) sh.opener.focus({ preventScroll: true });
+  }
+
+  function saveCustomFood(name, serving, kcal) {
+    const existing = db.customFoods.find((f) => f.name.toLowerCase() === name.toLowerCase());
+    if (existing) Object.assign(existing, { name: name, serving: serving, kcal: kcal });
+    else db.customFoods.push(cleanCustomFood({ name: name, serving: serving, kcal: kcal }));
+    return save.customFoods();
+  }
+
+  /** Calories must be a positive whole number. Returns an inline error message, or '' when valid. Nothing is ever rewritten. */
+  function kcalError(str) {
+    const v = String(str).trim();
+    if (!v) return 'Enter calories as a whole number above 0.';
+    if (/^[-−]/.test(v)) return 'Calories can’t be negative.';
+    if (/^\d*[.,]\d*$/.test(v) && /\d/.test(v)) return 'Use a whole number of calories, no decimals.';
+    if (!/^\d+$/.test(v)) return 'Calories must be a number, like 250.';
+    const n = Number(v);
+    if (n <= 0) return 'Enter calories above 0.';
+    if (n > KCAL_MAX) return 'Keep a single entry under ' + fmt(KCAL_MAX) + ' kcal.';
+    return '';
+  }
+  function setKcalInvalid(on) { if (on) $('#f-kcal').setAttribute('aria-invalid', 'true'); else $('#f-kcal').removeAttribute('aria-invalid'); }
+  function validateKcal(focus) {
+    const msg = kcalError($('#f-kcal').value);
+    setKcalInvalid(!!msg);
+    if (msg) { showError(msg, $('.kcal-box')); if (focus) $('#f-kcal').focus({ preventScroll: true }); }
+    return !msg;
+  }
+  /* Food name is required (studio decision, 2026-10-06): an empty or whitespace-only name shows an inline
+     error under the name field and saves nothing. Set to false to go back to saving it as "Quick add". */
+  const REQUIRE_FOOD_NAME = true;
+  const QUICK_ADD_NAME = 'Quick add';
+  function resolveFoodName() {
+    const name = $('#f-name').value.trim();
+    if (name) return name;
+    if (REQUIRE_FOOD_NAME) { showError('Add a food name.', $('#name-field'), 'name'); $('#f-name').focus({ preventScroll: true }); return null; }
+    return QUICK_ADD_NAME;
+  }
+
+  async function submitSheet() {
+    const sh = state.sheet;
+    const servings = Number($('#f-servings').value.replace(',', '.'));
+    const name = resolveFoodName();   // top of the form first
+    if (name == null) return;
+    if (!validateKcal(true)) return;
+    const kcal = Number($('#f-kcal').value.trim());
+    if (!Number.isFinite(servings) || servings <= 0 || servings > SERV_MAX) { showError('Servings must be between 0.5 and ' + SERV_MAX + '.', $('.stepper')); return; }
+    const payload = { name: name, kcal: kcal, servings: roundServ(servings), qty: $('#f-qty').value, meal: selectedMeal() };
+    let saved;
+    if (sh.editingId) {
+      const idx = db.entries.findIndex((x) => x.id === sh.editingId);
+      if (idx < 0) { closeSheet(); render(); return; }
+      saved = cleanEntry(Object.assign({}, db.entries[idx], payload, { updatedAt: Date.now() }));
+      db.entries[idx] = saved;
+    } else {
+      saved = cleanEntry(Object.assign({ date: sh.date || state.day, createdAt: Date.now() }, payload));
+      db.entries.push(saved);
+    }
+    const ok = await save.day(saved.date);
+    if (!ok) { showError('Couldn’t save. Storage may be full or disabled.'); return; }
+    let foodMsg = '';
+    if ($('#f-save-food').checked) {
+      const perServing = Math.round(kcal / payload.servings);
+      const serving = (sh.picked && sh.picked.serving) || saved.qty || '1 serving';
+      if (await saveCustomFood(name, serving, perServing)) foodMsg = ' · saved to my foods';
+    }
+    const wasEdit = !!sh.editingId;
+    closeSheet();
+    render();
+    toast(wasEdit ? 'Changes saved' + foodMsg : 'Added ' + fmt(kcal) + ' kcal to ' + MEAL[saved.meal].label + foodMsg);
+  }
+
+  /** One-tap re-add from the Recent chips: same food, current day, meal selected in the form. */
+  async function quickAdd(id) {
+    const src = db.entries.find((e) => e.id === id);
+    if (!src) return;
+    const meal = selectedMeal();
+    const date = state.sheet.date || state.day;
+    db.entries.push(cleanEntry({ name: src.name, kcal: src.kcal, servings: src.servings, qty: src.qty, meal: meal, date: date, createdAt: Date.now() }));
+    const ok = await save.day(date);
+    closeSheet();
+    render();
+    toast(ok ? 'Added ' + src.name + ' to ' + MEAL[meal].label : 'Couldn’t save');
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Confirm dialog                                                       */
+  /* ------------------------------------------------------------------ */
+  let confirmResolve = null;
+  function confirmDialog(opts) {
+    $('#confirm-title').textContent = opts.title;
+    $('#confirm-msg').textContent = opts.msg || '';
+    $('#confirm-ok').textContent = opts.ok || 'Delete';
+    $('#confirm-ok').className = 'btn ' + (opts.danger === false ? 'btn-primary' : 'btn-danger');
+    const dlg = $('#confirm');
+    const prevFocus = document.activeElement;
+    const sheetOpen = state.sheet.open;
+    if (sheetOpen) $('#sheet').setAttribute('inert', ''); else setBackgroundInert(true);
+    openLayer(dlg, $('#confirm-backdrop'));
+    $('#confirm-cancel').focus();
+    return new Promise((resolve) => {
+      confirmResolve = (ok) => {
+        confirmResolve = null;
+        closeLayer(dlg, $('#confirm-backdrop'));
+        if (sheetOpen) $('#sheet').removeAttribute('inert'); else setBackgroundInert(false);
+        if (prevFocus && document.contains(prevFocus) && prevFocus.focus) prevFocus.focus({ preventScroll: true });
+        resolve(ok);
+      };
+    });
+  }
+
+  async function deleteEntry(id) {
+    const e = db.entries.find((x) => x.id === id);
+    if (!e) return;
+    // No confirm dialog: delete right away and offer Undo in the toast (~5 s).
+    db.entries = db.entries.filter((x) => x.id !== id);
+    const saved = await save.day(e.date);
+    if (state.sheet.open) closeSheet();
+    render();
+    if (!saved) { toast('Couldn’t delete'); return; }
+    toast('Deleted ' + e.name, {
+      action: 'Undo',
+      onAction: async () => {
+        if (db.entries.some((x) => x.id === e.id)) return;
+        db.entries.push(e);
+        const ok = await save.day(e.date);
+        render();
+        toast(ok ? 'Entry restored' : 'Couldn’t restore');
+      }
+    });
+  }
+
+  async function deleteCustomFood(id) {
+    const f = db.customFoods.find((x) => x.id === id);
+    if (!f) return;
+    db.customFoods = db.customFoods.filter((x) => x.id !== id);
+    const saved = await save.customFoods();
+    render();
+    if (!saved) { toast('Couldn’t remove'); return; }
+    toast('Removed ' + f.name, {
+      action: 'Undo',
+      onAction: async () => {
+        if (db.customFoods.some((x) => x.id === f.id)) return;
+        db.customFoods.push(f);
+        await save.customFoods();
+        render();
+        toast('Restored to my foods');
+      }
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Settings actions                                                     */
+  /* ------------------------------------------------------------------ */
+  function setGoalError(msg) {
+    const el = $('#goal-error');
+    el.textContent = msg; el.hidden = !msg;
+    if (msg) $('#goal-input').setAttribute('aria-invalid', 'true'); else $('#goal-input').removeAttribute('aria-invalid');
+  }
+  async function saveGoal() {
+    const input = $('#goal-input');
+    const v = input.value.trim();
+    const g = /^\d+$/.test(v) ? cleanGoal(Number(v)) : null;
+    if (g == null) {
+      setGoalError(/^\d+$/.test(v) || !v
+        ? 'Goal must be ' + fmt(GOAL_MIN) + '–' + fmt(GOAL_MAX) + ' kcal.'
+        : 'Goal must be a whole number between ' + fmt(GOAL_MIN) + ' and ' + fmt(GOAL_MAX) + '.');
+      input.classList.remove('shake'); void input.offsetWidth; input.classList.add('shake');
+      input.focus({ preventScroll: true });
+      return;
+    }
+    setGoalError('');
+    db.goal = g; db.settingsUpdatedAt = Date.now();
+    const ok = await save.settings();
+    input.blur();
+    render();
+    toast(ok ? 'Daily goal set to ' + fmt(g) + ' kcal' : 'Couldn’t save goal');
+  }
+
+  function download(filename, text) {
+    const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+  function exportData() {
+    const data = { app: 'calorie-tracker', version: 1, exportedAt: new Date().toISOString(), goal: db.goal,
+      entries: db.entries.slice().sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : a.createdAt - b.createdAt)),
+      customFoods: db.customFoods, bestStreak: db.bestStreak };
+    if (db.libraryOverride) data.foodLibrary = db.libraryOverride;
+    download('calorie-tracker-' + todayISO() + '.json', JSON.stringify(data, null, 2));
+    toast('Exported ' + db.entries.length + ' entries');
+  }
+  function readFile(file) {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(String(r.result));
+      r.onerror = () => reject(r.error);
+      r.readAsText(file);
+    });
+  }
+  async function importData(file) {
+    let data;
+    try { data = JSON.parse(await readFile(file)); } catch (_) { toast('That file isn’t valid JSON'); return; }
+    const raw = Array.isArray(data) ? data : data && Array.isArray(data.entries) ? data.entries : null;
+    if (!raw) { toast('No entries found in that file'); return; }
+    const entries = raw.map(cleanEntry).filter(Boolean);
+    const skipped = raw.length - entries.length;
+    const ok = await confirmDialog({
+      title: 'Replace your data?',
+      msg: 'Import ' + entries.length + ' entr' + (entries.length === 1 ? 'y' : 'ies') + (skipped ? ' (' + skipped + ' invalid skipped)' : '') +
+        '. This replaces the ' + db.entries.length + ' entries on this device.',
+      ok: 'Import', danger: false
+    });
+    if (!ok) return;
+    db.entries = entries;
+    if (!Array.isArray(data)) {
+      if (cleanGoal(data.goal)) { db.goal = cleanGoal(data.goal); db.settingsUpdatedAt = Date.now(); }
+      if (Number.isInteger(data.bestStreak) && data.bestStreak > db.bestStreak) { db.bestStreak = data.bestStreak; await save.best(); }
+      if (Array.isArray(data.customFoods)) db.customFoods = data.customFoods.map(cleanCustomFood).filter(Boolean);
+      if (Array.isArray(data.foodLibrary)) { const l = data.foodLibrary.map(cleanFood).filter(Boolean); db.libraryOverride = l.length ? l : null; }
+    }
+    const res = await Promise.all([saveAllDays(), save.settings(), save.customFoods(), save.library()]);
+    render();
+    toast(res.every(Boolean) ? 'Imported ' + entries.length + ' entries' : 'Import only partly saved');
+  }
+  async function importFoods(file) {
+    let data;
+    try { data = JSON.parse(await readFile(file)); } catch (_) { toast('That file isn’t valid JSON'); return; }
+    const arr = Array.isArray(data) ? data : data && Array.isArray(data.foods) ? data.foods : null;
+    if (!arr) { toast('Expected an array of {name, serving, kcal}'); return; }
+    const foods = arr.map(cleanFood).filter(Boolean);
+    if (!foods.length) { toast('No valid foods in that file'); return; }
+    db.libraryOverride = foods;
+    const ok = await save.library();
+    render();
+    const skipped = arr.length - foods.length;
+    toast(ok ? 'Food library: ' + foods.length + ' foods' + (skipped ? ' (' + skipped + ' skipped)' : '') : 'Couldn’t save library');
+  }
+  async function resetFoods() {
+    db.libraryOverride = null;
+    await save.library();
+    render();
+    toast('Using the built-in list (' + FOOD_LIBRARY.length + ' foods)');
+  }
+  async function clearAll() {
+    const ok = await confirmDialog({ title: 'Clear all data?', msg: 'This permanently deletes all ' + db.entries.length + ' entries, your goal, streak record and my foods on this device. Export first if you want a backup.', ok: 'Clear all' });
+    if (!ok) return;
+    const days = await dayKeys();
+    db.entries = []; db.goal = DEFAULT_GOAL; db.settingsUpdatedAt = Date.now(); db.customFoods = []; db.libraryOverride = null; db.bestStreak = 0; db.milestonesShown = [];
+    state.streak = null; state.milestone = null;
+    await Promise.all(days.map((d) => StorageAdapter.remove(DAY_PREFIX + d)).concat(Object.values(KEYS).map((k) => StorageAdapter.remove(k))));
+    state.day = todayISO();
+    render();
+    toast('All data cleared');
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Toast                                                                */
+  /* ------------------------------------------------------------------ */
+  let toastTimer = null;
+  /** toast(msg) or toast(msg, { action: 'Undo', onAction }) — the action version stays up longer and is tappable. */
+  function toast(msg, opts) {
+    const t = $('#toast');
+    t.textContent = '';
+    const span = document.createElement('span');
+    span.textContent = msg;
+    t.appendChild(span);
+    const hasAction = !!(opts && opts.action);
+    t.classList.toggle('has-action', hasAction);
+    if (hasAction) {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'toast-btn'; b.id = 'toast-action'; b.textContent = opts.action;
+      b.addEventListener('click', () => { hideToast(); opts.onAction(); }, { once: true });
+      t.appendChild(b);
+    }
+    t.hidden = false;
+    void t.offsetWidth;
+    t.classList.add('is-open');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(hideToast, hasAction ? 5000 : 2400);
+  }
+  function hideToast() {
+    const t = $('#toast');
+    clearTimeout(toastTimer);
+    t.classList.remove('is-open');
+    setTimeout(() => { if (!t.classList.contains('is-open')) { t.hidden = true; t.classList.remove('has-action'); } }, 200);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Events                                                               */
+  /* ------------------------------------------------------------------ */
+  document.addEventListener('click', (ev) => {
+    const el = ev.target.closest('[data-action]');
+    if (!el) return;
+    const id = el.getAttribute('data-id');
+    switch (el.getAttribute('data-action')) {
+      case 'open-add': openSheet(null, el.getAttribute('data-meal')); break;
+      case 'close-sheet': closeSheet(); break;
+      case 'edit': { const e = db.entries.find((x) => x.id === id); if (e) openSheet(e); break; }
+      case 'delete-current': if (state.sheet.editingId) deleteEntry(state.sheet.editingId); break;
+      case 'pick-food': { const f = searchPool[Number(el.getAttribute('data-idx'))]; if (f) pickFood(f); break; }
+      case 'quick-add': quickAdd(id); break;
+      case 'clear-name':
+        $('#f-name').value = ''; state.sheet.picked = null;
+        renderResults(); renderServingHint(); $('#f-name').focus(); break;
+      case 'serv-dec': setServings(Math.max(SERV_MIN, Math.ceil(state.sheet.servings / SERV_STEP - 1e-9) * SERV_STEP - SERV_STEP)); break;
+      case 'serv-inc': setServings(Math.min(SERV_MAX, Math.floor(state.sheet.servings / SERV_STEP + 1e-9) * SERV_STEP + SERV_STEP)); break;
+      case 'day-prev': state.day = shiftDay(state.day, -1); renderToday(); break;
+      case 'day-next': if (state.day < todayISO()) { state.day = shiftDay(state.day, 1); renderToday(); } break;
+      case 'jump-today': state.day = todayISO(); renderToday(); break;
+      case 'goto-day': state.day = el.getAttribute('data-day'); renderToday(); location.hash = '#today'; break;
+      case 'delete-food': deleteCustomFood(id); break;
+      case 'export': exportData(); break;
+      case 'import-data': $('#file-data').click(); break;
+      case 'import-foods': $('#file-foods').click(); break;
+      case 'reset-foods': resetFoods(); break;
+      case 'clear-all': clearAll(); break;
+      case 'dismiss-milestone': state.milestone = null; renderStreak(); break;
+    }
+  });
+
+  $('#f-name').addEventListener('input', () => {
+    const sh = state.sheet;
+    if (sh.picked && $('#f-name').value !== sh.picked.name) { sh.picked = null; renderServingHint(); } // now a manual entry
+    if ($('#form-error').dataset.field === 'name' && $('#f-name').value.trim()) hideError(); // name error clears as you type
+    renderResults();
+  });
+  $('#f-name').addEventListener('keydown', (ev) => {
+    if (ev.key === 'ArrowDown' && searchPool.length) { ev.preventDefault(); document.querySelector('.result').focus(); return; }
+    if (ev.key !== 'Enter' || ev.isComposing) return;
+    ev.preventDefault();
+    if (!$('#f-kcal').value.trim()) { if (searchPool.length) pickFood(searchPool[0]); else $('#f-kcal').focus(); }
+    else submitSheet();
+  });
+  $('#results').addEventListener('keydown', (ev) => {
+    const btns = Array.from(document.querySelectorAll('.result'));
+    const i = btns.indexOf(document.activeElement);
+    if (i < 0) return;
+    if (ev.key === 'ArrowDown') { ev.preventDefault(); (btns[i + 1] || btns[i]).focus(); }
+    if (ev.key === 'ArrowUp') { ev.preventDefault(); (btns[i - 1] || $('#f-name')).focus(); }
+  });
+  // Never rewrite what was typed: bad values (-50, 150.5, 12abc, 0) get an inline error on blur / submit instead.
+  $('#f-kcal').addEventListener('input', () => {
+    const v = $('#f-kcal').value.trim();
+    const sh = state.sheet;
+    const valid = !kcalError(v);
+    sh.base = valid && sh.servings > 0 ? Number(v) / sh.servings : null; // typed total ÷ servings = per serving
+    if (valid || !v) { hideError(); setKcalInvalid(false); }
+    renderServingHint();
+  });
+  $('#f-kcal').addEventListener('blur', () => {
+    if (!state.sheet.open) return;
+    if ($('#f-kcal').value.trim()) validateKcal(false); // don't nag about an empty field until submit
+  });
+  $('#f-servings').addEventListener('input', () => {
+    const v = Number($('#f-servings').value.replace(',', '.'));
+    if (Number.isFinite(v) && v > 0 && v <= SERV_MAX) setServings(v, true);
+  });
+  $('#f-servings').addEventListener('blur', () => {
+    const v = Number($('#f-servings').value.replace(',', '.'));
+    setServings(Number.isFinite(v) && v > 0 ? v : (state.sheet.servings > 0 ? state.sheet.servings : 1));
+  });
+  $('#entry-form').addEventListener('submit', (ev) => { ev.preventDefault(); submitSheet(); });
+  $('#goal-form').addEventListener('submit', (ev) => { ev.preventDefault(); saveGoal(); });
+  $('#goal-input').addEventListener('input', () => { if (!$('#goal-error').hidden) setGoalError(''); });
+  $('#file-data').addEventListener('change', (ev) => { const f = ev.target.files[0]; ev.target.value = ''; if (f) importData(f); });
+  $('#file-foods').addEventListener('change', (ev) => { const f = ev.target.files[0]; ev.target.value = ''; if (f) importFoods(f); });
+
+  $('#confirm-cancel').addEventListener('click', () => { if (confirmResolve) confirmResolve(false); });
+  $('#confirm-ok').addEventListener('click', () => { if (confirmResolve) confirmResolve(true); });
+  $('#confirm-backdrop').addEventListener('click', () => { if (confirmResolve) confirmResolve(false); });
+  document.addEventListener('keydown', (ev) => {
+    if (confirmResolve) { if (ev.key === 'Escape') confirmResolve(false); return; }
+    if (state.sheet.open && ev.key === 'Escape') { ev.preventDefault(); closeSheet(); }
+  });
+
+  window.addEventListener('hashchange', route);
+  // Keep tabs in sync (only the localStorage backend fires this).
+  window.addEventListener('storage', (ev) => {
+    if (ev.key !== null && ev.key.indexOf('ct:') !== 0) return;
+    if (loaded && !state.sheet.open) loadAll().then(render);
+  });
+  /* Date rollover: one check, run when the app becomes visible, when the window gets focus, and every 60 s. */
+  let lastToday = todayISO();
+  function checkRollover() {
+    if (TODAY_OVERRIDE) return false;            // ?today= wins: the date never rolls over
+    const t = todayISO();
+    if (t === lastToday) return false;
+    if (state.day === lastToday) state.day = t;   // was viewing the old today: follow to the new one
+    lastToday = t;
+    render();                                     // ring, meals, history, 7-day row and streak (re-derived)
+    return true;
+  }
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) checkRollover(); });
+  window.addEventListener('focus', checkRollover);
+  setInterval(checkRollover, 60000);
+  // Minimal test hook (used by tools/qa.py).
+  window.CalorieTracker = Object.freeze({ checkRollover: checkRollover });
+
+  /* ------------------------------------------------------------------ */
+  /* Boot                                                                 */
+  /* ------------------------------------------------------------------ */
+  renderMealChips();
+  route();
+  render(); // first paint with defaults (streak shows a placeholder), then real data
+  loadAll().catch((err) => console.info('[calorie-tracker] could not load saved data', err && err.message ? err.message : '')).then(async () => {
+    loaded = true;
+    render();
+    await refreshStreak();
+    document.documentElement.dataset.ready = '1';
+  });
+
+  // Offline support is optional: if sw.js is missing (index.html served alone), blocked or unsupported, the app just runs online.
+  function registerServiceWorker() {
+    const skip = (err) => console.info('[calorie-tracker] Service worker not registered; offline caching unavailable here.', err && err.message ? err.message : '');
+    try {
+      if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
+      const register = () => navigator.serviceWorker.register('./sw.js', { scope: './' });
+      // Already installed: just let the browser check for updates (works offline too).
+      if (navigator.serviceWorker.controller) { register().catch(skip); return; }
+      // First visit: check sw.js exists before registering, so serving index.html alone degrades quietly.
+      fetch('./sw.js', { method: 'HEAD', cache: 'no-store' })
+        .then((res) => {
+          if (!res.ok) return skip({ message: 'sw.js not found (HTTP ' + res.status + ')' });
+          return register();
+        })
+        .catch(skip);
+    } catch (err) { skip(err); }
+  }
+  if (document.readyState === 'complete') registerServiceWorker();
+  else window.addEventListener('load', registerServiceWorker);
+})();
+  </script>
+</body>
+</html>
