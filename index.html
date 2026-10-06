@@ -756,9 +756,12 @@ body.has-dock { --dock-h: calc(var(--dock-btn-h) + 2 * var(--s-2)); }
 
 /* === FOOD LIBRARY: edit here ===========================================
    One row per food: { name: '...', serving: '...', kcal: N }
-   kcal = calories for ONE serving as written. Values are typical, rounded
-   estimates based on USDA FoodData Central (SR Legacy / FNDDS); brands and
-   preparation vary. Keep one food per line so tools/export_foods.py can
+   Optional fields: category: 'fast-food' | 'mexican', and
+   aliases: ['...'] (extra search terms, e.g. 'fries', 'nuggets').
+   kcal = calories for ONE serving as written. Base items are typical, rounded
+   values based on USDA FoodData Central (SR Legacy / FNDDS); brands and
+   preparation vary. Fast food rows use each chain's published calories and
+   Mexican rows use USDA FNDDS; sources: tools/food-sources-v1.3.md. Keep one food per line so tools/export_foods.py can
    regenerate foods.json. A foods.json import in Settings replaces this list
    on the device; Settings > "Use built-in list" switches back.
    ======================================================================== */
@@ -849,7 +852,51 @@ const FOOD_LIBRARY = [
   { name: 'Beer, light', serving: '1 can (12 fl oz)', kcal: 103 },
   { name: 'Wine, red', serving: '1 glass (5 fl oz)', kcal: 125 },
   { name: 'Wine, white', serving: '1 glass (5 fl oz)', kcal: 121 },
-  { name: 'Sports drink', serving: '1 bottle (20 fl oz)', kcal: 140 }
+  { name: 'Sports drink', serving: '1 bottle (20 fl oz)', kcal: 140 },
+  // Fast food (chain-published calories; see tools/food-sources-v1.3.md)
+  { name: 'McDonald\'s Big Mac', serving: '1 sandwich', kcal: 580, category: 'fast-food', aliases: ['big mac', 'burger', 'hamburger', 'mcdonalds'] },
+  { name: 'McDonald\'s Quarter Pounder with Cheese', serving: '1 sandwich', kcal: 520, category: 'fast-food', aliases: ['quarter pounder', 'burger', 'cheeseburger', 'mcdonalds'] },
+  { name: 'McDonald\'s McChicken', serving: '1 sandwich', kcal: 390, category: 'fast-food', aliases: ['chicken sandwich', 'mcdonalds'] },
+  { name: 'McDonald\'s World Famous Fries, medium', serving: '1 medium', kcal: 320, category: 'fast-food', aliases: ['fries', 'french fries', 'mcdonalds'] },
+  { name: 'McDonald\'s Chicken McNuggets, 10 pc', serving: '10 pieces', kcal: 410, category: 'fast-food', aliases: ['nuggets', 'mcnuggets', 'chicken nuggets', 'mcdonalds'] },
+  { name: 'McDonald\'s Egg McMuffin', serving: '1 sandwich', kcal: 310, category: 'fast-food', aliases: ['mcmuffin', 'breakfast sandwich', 'mcdonalds'] },
+  { name: 'Chick-fil-A Chicken Sandwich', serving: '1 sandwich', kcal: 420, category: 'fast-food', aliases: ['chicken sandwich', 'chick fil a', 'chickfila'] },
+  { name: 'Chick-fil-A Spicy Chicken Sandwich', serving: '1 sandwich', kcal: 450, category: 'fast-food', aliases: ['chicken sandwich', 'chick fil a', 'chickfila'] },
+  { name: 'Taco Bell Crunchy Taco', serving: '1 taco', kcal: 170, category: 'fast-food', aliases: ['taco', 'tacos', 'hard taco'] },
+  { name: 'Taco Bell Soft Taco', serving: '1 taco', kcal: 180, category: 'fast-food', aliases: ['taco', 'tacos', 'soft taco'] },
+  { name: 'Taco Bell Bean Burrito', serving: '1 burrito', kcal: 360, category: 'fast-food', aliases: ['burrito', 'bean burrito'] },
+  { name: 'Taco Bell Crunchwrap Supreme', serving: '1 item', kcal: 530, category: 'fast-food', aliases: ['crunchwrap'] },
+  { name: 'Taco Bell Chicken Quesadilla', serving: '1 quesadilla', kcal: 490, category: 'fast-food', aliases: ['quesadilla', 'chicken quesadilla'] },
+  { name: 'Taco Bell Cheesy Gordita Crunch', serving: '1 item', kcal: 480, category: 'fast-food', aliases: ['gordita'] },
+  { name: 'Taco Bell Mexican Pizza', serving: '1 item', kcal: 530, category: 'fast-food', aliases: ['pizza'] },
+  { name: 'Pizza Hut Cheese Pizza, large hand tossed', serving: '1 slice', kcal: 310, category: 'fast-food', aliases: ['pizza', 'pizza slice', 'cheese pizza'] },
+  { name: 'Pizza Hut Pepperoni Pizza, large hand tossed', serving: '1 slice', kcal: 320, category: 'fast-food', aliases: ['pizza', 'pizza slice', 'pepperoni pizza'] },
+  { name: 'Pizza Hut Pepperoni Pizza, medium pan', serving: '1 slice', kcal: 270, category: 'fast-food', aliases: ['pizza', 'pizza slice', 'pepperoni pizza'] },
+  // Mexican (USDA FoodData Central FNDDS; see tools/food-sources-v1.3.md)
+  { name: 'Taco, beef (corn tortilla, cheese)', serving: '1 taco (105 g)', kcal: 261, category: 'mexican', aliases: ['taco', 'tacos', 'beef taco'] },
+  { name: 'Taco, chicken (corn tortilla, cheese)', serving: '1 taco (105 g)', kcal: 222, category: 'mexican', aliases: ['taco', 'tacos', 'chicken taco'] },
+  { name: 'Taco, pork (corn tortilla, cheese)', serving: '1 taco (105 g)', kcal: 264, category: 'mexican', aliases: ['taco', 'tacos', 'pork taco'] },
+  { name: 'Burrito, beef and bean, with cheese', serving: '1 burrito (220 g)', kcal: 482, category: 'mexican', aliases: ['burrito', 'beef burrito'] },
+  { name: 'Burrito, chicken and bean, with cheese', serving: '1 burrito (220 g)', kcal: 447, category: 'mexican', aliases: ['burrito', 'chicken burrito'] },
+  { name: 'Burrito, bean and cheese', serving: '1 burrito (190 g)', kcal: 372, category: 'mexican', aliases: ['burrito', 'bean burrito', 'bean and cheese burrito'] },
+  { name: 'Enchilada, beef', serving: '1 enchilada (150 g)', kcal: 287, category: 'mexican', aliases: ['enchilada', 'enchiladas'] },
+  { name: 'Enchilada, chicken', serving: '1 enchilada (150 g)', kcal: 267, category: 'mexican', aliases: ['enchilada', 'enchiladas'] },
+  { name: 'Enchilada, cheese (no meat)', serving: '1 enchilada (150 g)', kcal: 248, category: 'mexican', aliases: ['enchilada', 'enchiladas', 'cheese enchilada'] },
+  { name: 'Quesadilla, cheese', serving: '1 whole (120 g)', kcal: 379, category: 'mexican', aliases: ['quesadilla', 'cheese quesadilla'] },
+  { name: 'Quesadilla, chicken', serving: '1 whole (140 g)', kcal: 402, category: 'mexican', aliases: ['quesadilla', 'chicken quesadilla'] },
+  { name: 'Tamale, pork', serving: '1 tamale (140 g)', kcal: 244, category: 'mexican', aliases: ['tamale', 'tamales'] },
+  { name: 'Tamale, chicken', serving: '1 tamale (140 g)', kcal: 244, category: 'mexican', aliases: ['tamale', 'tamales'] },
+  { name: 'Chile relleno, cheese-filled', serving: '1 chile (143 g)', kcal: 326, category: 'mexican', aliases: ['chile relleno', 'chiles rellenos', 'chili relleno'] },
+  { name: 'Nachos, cheese', serving: '1 order (250 g)', kcal: 665, category: 'mexican', aliases: ['nachos'] },
+  { name: 'Nachos, beef or pork', serving: '1 order (250 g)', kcal: 663, category: 'mexican', aliases: ['nachos', 'beef nachos'] },
+  { name: 'Guacamole', serving: '1 container (70 g)', kcal: 109, category: 'mexican', aliases: ['guac', 'avocado dip'] },
+  { name: 'Mexican rice (Spanish rice, restaurant)', serving: '1 cup (243 g)', kcal: 450, category: 'mexican', aliases: ['spanish rice', 'arroz', 'rice'] },
+  { name: 'Refried beans', serving: '1 cup (260 g)', kcal: 234, category: 'mexican', aliases: ['beans', 'frijoles'] },
+  { name: 'Pozole (soup)', serving: '1 cup (245 g)', kcal: 105, category: 'mexican', aliases: ['posole', 'soup'] },
+  { name: 'Horchata (made with water)', serving: '1 cup (8 fl oz) (248 g)', kcal: 218, category: 'mexican', aliases: ['rice drink'] },
+  { name: 'Carnitas (pork)', serving: '1 cup (135 g)', kcal: 366, category: 'mexican', aliases: ['pulled pork', 'pork'] },
+  { name: 'Salsa, red', serving: '1 tbsp (16 g)', kcal: 5, category: 'mexican', aliases: ['salsa', 'chips and salsa'] },
+  { name: 'Pico de gallo', serving: '1 cup (240 g)', kcal: 41, category: 'mexican', aliases: ['salsa', 'pico'] }
 ];
 /* === end FOOD LIBRARY ================================================= */
 
@@ -1081,7 +1128,14 @@ const FOOD_LIBRARY = [
     const name = String(f.name || '').trim().slice(0, 60);
     const kcal = Math.round(Number(f.kcal));
     if (!name || !Number.isFinite(kcal) || kcal < 0 || kcal > KCAL_MAX) return null;
-    return { name: name, serving: String(f.serving || '').trim().slice(0, 40) || '1 serving', kcal: kcal };
+    const out = { name: name, serving: String(f.serving || '').trim().slice(0, 40) || '1 serving', kcal: kcal };
+    // Optional fields (v1.3); older foods.json files without them still import.
+    if (Array.isArray(f.aliases)) {
+      const al = f.aliases.map((a) => String(a == null ? '' : a).trim().toLowerCase().slice(0, 40)).filter(Boolean).slice(0, 12);
+      if (al.length) out.aliases = al;
+    }
+    if (typeof f.category === 'string' && f.category.trim()) out.category = f.category.trim().toLowerCase().slice(0, 20);
+    return out;
   }
   function cleanCustomFood(f) {
     const c = cleanFood(f);
@@ -1494,7 +1548,7 @@ const FOOD_LIBRARY = [
     if (document.activeElement !== $('#goal-input')) $('#goal-input').value = String(db.goal);
     const lib = library();
     $('#lib-info').textContent = (db.libraryOverride ? 'Imported list: ' : 'Built-in list: ') + lib.length +
-      ' foods with typical calories (USDA-based estimates). Import a foods.json file (an array of {name, serving, kcal}) to replace it.';
+      ' foods with typical calories (USDA data and chain-published values). Import a foods.json file (an array of {name, serving, kcal}, with optional aliases and category) to replace it.';
     $('#lib-info').dataset.count = String(lib.length);
     $('#reset-foods').hidden = !db.libraryOverride;
     const mine = db.customFoods.slice().sort((a, b) => a.name.localeCompare(b.name));
@@ -1630,20 +1684,38 @@ const FOOD_LIBRARY = [
   /* ------------------------------------------------------------------ */
   let searchPool = [];
   function allFoods() {
-    return db.customFoods.map((f) => ({ name: f.name, serving: f.serving, kcal: f.kcal, custom: true }))
-      .concat(library().map((f) => ({ name: f.name, serving: f.serving, kcal: f.kcal, custom: false })));
+    return db.customFoods.map((f) => ({ name: f.name, serving: f.serving, kcal: f.kcal, aliases: f.aliases || [], custom: true }))
+      .concat(library().map((f) => ({ name: f.name, serving: f.serving, kcal: f.kcal, aliases: f.aliases || [], custom: false })));
   }
-  /** Case-insensitive substring match anywhere in the name; prefix and word-start matches rank first. */
+  /** Rank of q inside text: 0 = prefix, 1 = word start, 2 = anywhere; -1 = no match. */
+  function matchRank(text, q) {
+    const at = text.indexOf(q);
+    if (at < 0) return { rank: -1, at: -1 };
+    return { rank: at === 0 ? 0 : /[\s(,/'-]/.test(text[at - 1]) ? 1 : 2, at: at };
+  }
+  /**
+   * Case-insensitive match on the name and optional aliases. An exact alias
+   * (e.g. 'taco', 'fries') or exact word in the name ranks first, then prefix,
+   * word-start and substring matches.
+   */
   function searchFoods(q) {
     q = q.trim().toLowerCase();
     if (!q) return [];
     const scored = [];
+    const wordRe = new RegExp('(^|[^a-z0-9])' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '([^a-z0-9]|$)');
     allFoods().forEach((f) => {
       const n = f.name.toLowerCase();
-      const at = n.indexOf(q);
-      if (at < 0) return;
-      const score = (at === 0 ? 0 : /[\s(,/-]/.test(n[at - 1]) ? 1 : 2) - (f.custom ? 0.5 : 0);
-      scored.push({ f: f, score: score, at: at });
+      const m = matchRank(n, q);
+      let best = Infinity;
+      if (m.rank >= 0) best = wordRe.test(n) ? Math.min(m.rank, 0.5) : m.rank;
+      (f.aliases || []).forEach((al) => {
+        if (al === q) { best = -1; return; }
+        const r = matchRank(al, q).rank;
+        if (r >= 0) best = Math.min(best, r + 0.25);
+      });
+      if (best === Infinity) return;
+      const score = best - (f.custom ? 0.5 : 0);
+      scored.push({ f: f, score: score, at: m.at });
     });
     scored.sort((a, b) => a.score - b.score || a.f.name.localeCompare(b.f.name));
     return scored.slice(0, RESULT_COUNT).map((s) => Object.assign({ at: s.at }, s.f));

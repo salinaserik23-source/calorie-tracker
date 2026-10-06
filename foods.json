@@ -1,0 +1,834 @@
+[
+  {
+    "name": "Chicken breast, cooked (skinless)",
+    "serving": "4 oz (113 g)",
+    "kcal": 187
+  },
+  {
+    "name": "Chicken thigh, cooked (skinless)",
+    "serving": "4 oz (113 g)",
+    "kcal": 236
+  },
+  {
+    "name": "Egg, large",
+    "serving": "1 egg (50 g)",
+    "kcal": 72
+  },
+  {
+    "name": "Ground beef 85% lean, cooked",
+    "serving": "4 oz (113 g)",
+    "kcal": 283
+  },
+  {
+    "name": "Ground turkey 93% lean, cooked",
+    "serving": "4 oz (113 g)",
+    "kcal": 241
+  },
+  {
+    "name": "Sirloin steak, cooked (lean)",
+    "serving": "4 oz (113 g)",
+    "kcal": 229
+  },
+  {
+    "name": "Salmon, Atlantic, cooked",
+    "serving": "4 oz (113 g)",
+    "kcal": 233
+  },
+  {
+    "name": "Tuna, canned in water, drained",
+    "serving": "3 oz (85 g)",
+    "kcal": 73
+  },
+  {
+    "name": "Turkey breast, roasted",
+    "serving": "4 oz (113 g)",
+    "kcal": 153
+  },
+  {
+    "name": "Shrimp, cooked",
+    "serving": "3 oz (85 g)",
+    "kcal": 84
+  },
+  {
+    "name": "Bacon, cooked",
+    "serving": "2 slices (16 g)",
+    "kcal": 87
+  },
+  {
+    "name": "Black beans, cooked",
+    "serving": "1/2 cup (86 g)",
+    "kcal": 114
+  },
+  {
+    "name": "White rice, cooked",
+    "serving": "1 cup (158 g)",
+    "kcal": 205
+  },
+  {
+    "name": "Brown rice, cooked",
+    "serving": "1 cup (195 g)",
+    "kcal": 216
+  },
+  {
+    "name": "Quinoa, cooked",
+    "serving": "1 cup (185 g)",
+    "kcal": 222
+  },
+  {
+    "name": "Pasta, cooked",
+    "serving": "1 cup (140 g)",
+    "kcal": 221
+  },
+  {
+    "name": "White bread",
+    "serving": "1 slice (28 g)",
+    "kcal": 75
+  },
+  {
+    "name": "Whole wheat bread",
+    "serving": "1 slice (32 g)",
+    "kcal": 81
+  },
+  {
+    "name": "Bagel, plain",
+    "serving": "1 medium (105 g)",
+    "kcal": 277
+  },
+  {
+    "name": "Flour tortilla",
+    "serving": "1 medium, 8 in (49 g)",
+    "kcal": 146
+  },
+  {
+    "name": "Corn tortilla",
+    "serving": "1 medium, 6 in (26 g)",
+    "kcal": 57
+  },
+  {
+    "name": "Oatmeal, cooked with water",
+    "serving": "1 cup (234 g)",
+    "kcal": 166
+  },
+  {
+    "name": "Rolled oats, dry",
+    "serving": "1/2 cup (40 g)",
+    "kcal": 150
+  },
+  {
+    "name": "Breakfast cereal (corn flakes)",
+    "serving": "1 cup (28 g)",
+    "kcal": 100
+  },
+  {
+    "name": "Milk, whole",
+    "serving": "1 cup (244 g)",
+    "kcal": 149
+  },
+  {
+    "name": "Milk, 2%",
+    "serving": "1 cup (244 g)",
+    "kcal": 122
+  },
+  {
+    "name": "Cheddar cheese",
+    "serving": "1 oz (28 g)",
+    "kcal": 114
+  },
+  {
+    "name": "Mozzarella, part-skim",
+    "serving": "1 oz (28 g)",
+    "kcal": 72
+  },
+  {
+    "name": "Cottage cheese, 2%",
+    "serving": "1/2 cup (113 g)",
+    "kcal": 92
+  },
+  {
+    "name": "Greek yogurt, plain nonfat",
+    "serving": "1 container (170 g)",
+    "kcal": 100
+  },
+  {
+    "name": "Yogurt, plain whole milk",
+    "serving": "1 cup (245 g)",
+    "kcal": 149
+  },
+  {
+    "name": "Butter",
+    "serving": "1 tbsp (14 g)",
+    "kcal": 102
+  },
+  {
+    "name": "Ice cream, vanilla",
+    "serving": "1/2 cup (66 g)",
+    "kcal": 137
+  },
+  {
+    "name": "Apple",
+    "serving": "1 medium (182 g)",
+    "kcal": 95
+  },
+  {
+    "name": "Banana",
+    "serving": "1 medium (118 g)",
+    "kcal": 105
+  },
+  {
+    "name": "Orange",
+    "serving": "1 medium (131 g)",
+    "kcal": 62
+  },
+  {
+    "name": "Strawberries",
+    "serving": "1 cup halves (152 g)",
+    "kcal": 49
+  },
+  {
+    "name": "Blueberries",
+    "serving": "1 cup (148 g)",
+    "kcal": 84
+  },
+  {
+    "name": "Grapes",
+    "serving": "1 cup (151 g)",
+    "kcal": 104
+  },
+  {
+    "name": "Watermelon",
+    "serving": "1 cup diced (152 g)",
+    "kcal": 46
+  },
+  {
+    "name": "Pineapple",
+    "serving": "1 cup chunks (165 g)",
+    "kcal": 82
+  },
+  {
+    "name": "Mango",
+    "serving": "1 cup pieces (165 g)",
+    "kcal": 99
+  },
+  {
+    "name": "Avocado",
+    "serving": "1/2 avocado (68 g)",
+    "kcal": 114
+  },
+  {
+    "name": "Broccoli, cooked",
+    "serving": "1 cup chopped (156 g)",
+    "kcal": 55
+  },
+  {
+    "name": "Carrot, raw",
+    "serving": "1 medium (61 g)",
+    "kcal": 25
+  },
+  {
+    "name": "Salad greens (romaine / mixed)",
+    "serving": "2 cups shredded (94 g)",
+    "kcal": 16
+  },
+  {
+    "name": "Potato, baked with skin",
+    "serving": "1 medium (173 g)",
+    "kcal": 161
+  },
+  {
+    "name": "Sweet potato, baked",
+    "serving": "1 medium (114 g)",
+    "kcal": 103
+  },
+  {
+    "name": "Sweet corn, cooked",
+    "serving": "1 cup kernels (149 g)",
+    "kcal": 143
+  },
+  {
+    "name": "Green beans, cooked",
+    "serving": "1 cup (125 g)",
+    "kcal": 44
+  },
+  {
+    "name": "Tomato",
+    "serving": "1 medium (123 g)",
+    "kcal": 22
+  },
+  {
+    "name": "Bell pepper, red",
+    "serving": "1 medium (119 g)",
+    "kcal": 37
+  },
+  {
+    "name": "Peanut butter",
+    "serving": "2 tbsp (32 g)",
+    "kcal": 190
+  },
+  {
+    "name": "Almonds",
+    "serving": "1 oz, ~23 nuts (28 g)",
+    "kcal": 164
+  },
+  {
+    "name": "Peanuts, dry roasted",
+    "serving": "1 oz (28 g)",
+    "kcal": 166
+  },
+  {
+    "name": "Walnuts",
+    "serving": "1 oz, 14 halves (28 g)",
+    "kcal": 185
+  },
+  {
+    "name": "Olive oil",
+    "serving": "1 tbsp (14 g)",
+    "kcal": 119
+  },
+  {
+    "name": "Mayonnaise",
+    "serving": "1 tbsp (14 g)",
+    "kcal": 94
+  },
+  {
+    "name": "Honey",
+    "serving": "1 tbsp (21 g)",
+    "kcal": 64
+  },
+  {
+    "name": "Potato chips",
+    "serving": "1 oz, ~15 chips (28 g)",
+    "kcal": 152
+  },
+  {
+    "name": "Tortilla chips",
+    "serving": "1 oz (28 g)",
+    "kcal": 138
+  },
+  {
+    "name": "Granola bar, chewy",
+    "serving": "1 bar (28 g)",
+    "kcal": 120
+  },
+  {
+    "name": "Popcorn, air-popped",
+    "serving": "3 cups (24 g)",
+    "kcal": 93
+  },
+  {
+    "name": "Chocolate chip cookie",
+    "serving": "1 medium (16 g)",
+    "kcal": 78
+  },
+  {
+    "name": "Dark chocolate (70-85%)",
+    "serving": "1 oz (28 g)",
+    "kcal": 170
+  },
+  {
+    "name": "Pizza, cheese",
+    "serving": "1 slice, 14 in (107 g)",
+    "kcal": 285
+  },
+  {
+    "name": "French fries (fast food)",
+    "serving": "1 medium order (117 g)",
+    "kcal": 365
+  },
+  {
+    "name": "Coffee, black",
+    "serving": "1 cup (8 fl oz)",
+    "kcal": 2
+  },
+  {
+    "name": "Half-and-half (for coffee)",
+    "serving": "1 tbsp (15 g)",
+    "kcal": 20
+  },
+  {
+    "name": "Sugar",
+    "serving": "1 tsp (4 g)",
+    "kcal": 16
+  },
+  {
+    "name": "Cola soda",
+    "serving": "1 can (12 fl oz)",
+    "kcal": 140
+  },
+  {
+    "name": "Diet soda",
+    "serving": "1 can (12 fl oz)",
+    "kcal": 0
+  },
+  {
+    "name": "Orange juice",
+    "serving": "1 cup (8 fl oz)",
+    "kcal": 112
+  },
+  {
+    "name": "Apple juice",
+    "serving": "1 cup (8 fl oz)",
+    "kcal": 114
+  },
+  {
+    "name": "Beer, regular",
+    "serving": "1 can (12 fl oz)",
+    "kcal": 153
+  },
+  {
+    "name": "Beer, light",
+    "serving": "1 can (12 fl oz)",
+    "kcal": 103
+  },
+  {
+    "name": "Wine, red",
+    "serving": "1 glass (5 fl oz)",
+    "kcal": 125
+  },
+  {
+    "name": "Wine, white",
+    "serving": "1 glass (5 fl oz)",
+    "kcal": 121
+  },
+  {
+    "name": "Sports drink",
+    "serving": "1 bottle (20 fl oz)",
+    "kcal": 140
+  },
+  {
+    "name": "McDonald's Big Mac",
+    "serving": "1 sandwich",
+    "kcal": 580,
+    "category": "fast-food",
+    "aliases": [
+      "big mac",
+      "burger",
+      "hamburger",
+      "mcdonalds"
+    ]
+  },
+  {
+    "name": "McDonald's Quarter Pounder with Cheese",
+    "serving": "1 sandwich",
+    "kcal": 520,
+    "category": "fast-food",
+    "aliases": [
+      "quarter pounder",
+      "burger",
+      "cheeseburger",
+      "mcdonalds"
+    ]
+  },
+  {
+    "name": "McDonald's McChicken",
+    "serving": "1 sandwich",
+    "kcal": 390,
+    "category": "fast-food",
+    "aliases": [
+      "chicken sandwich",
+      "mcdonalds"
+    ]
+  },
+  {
+    "name": "McDonald's World Famous Fries, medium",
+    "serving": "1 medium",
+    "kcal": 320,
+    "category": "fast-food",
+    "aliases": [
+      "fries",
+      "french fries",
+      "mcdonalds"
+    ]
+  },
+  {
+    "name": "McDonald's Chicken McNuggets, 10 pc",
+    "serving": "10 pieces",
+    "kcal": 410,
+    "category": "fast-food",
+    "aliases": [
+      "nuggets",
+      "mcnuggets",
+      "chicken nuggets",
+      "mcdonalds"
+    ]
+  },
+  {
+    "name": "McDonald's Egg McMuffin",
+    "serving": "1 sandwich",
+    "kcal": 310,
+    "category": "fast-food",
+    "aliases": [
+      "mcmuffin",
+      "breakfast sandwich",
+      "mcdonalds"
+    ]
+  },
+  {
+    "name": "Chick-fil-A Chicken Sandwich",
+    "serving": "1 sandwich",
+    "kcal": 420,
+    "category": "fast-food",
+    "aliases": [
+      "chicken sandwich",
+      "chick fil a",
+      "chickfila"
+    ]
+  },
+  {
+    "name": "Chick-fil-A Spicy Chicken Sandwich",
+    "serving": "1 sandwich",
+    "kcal": 450,
+    "category": "fast-food",
+    "aliases": [
+      "chicken sandwich",
+      "chick fil a",
+      "chickfila"
+    ]
+  },
+  {
+    "name": "Taco Bell Crunchy Taco",
+    "serving": "1 taco",
+    "kcal": 170,
+    "category": "fast-food",
+    "aliases": [
+      "taco",
+      "tacos",
+      "hard taco"
+    ]
+  },
+  {
+    "name": "Taco Bell Soft Taco",
+    "serving": "1 taco",
+    "kcal": 180,
+    "category": "fast-food",
+    "aliases": [
+      "taco",
+      "tacos",
+      "soft taco"
+    ]
+  },
+  {
+    "name": "Taco Bell Bean Burrito",
+    "serving": "1 burrito",
+    "kcal": 360,
+    "category": "fast-food",
+    "aliases": [
+      "burrito",
+      "bean burrito"
+    ]
+  },
+  {
+    "name": "Taco Bell Crunchwrap Supreme",
+    "serving": "1 item",
+    "kcal": 530,
+    "category": "fast-food",
+    "aliases": [
+      "crunchwrap"
+    ]
+  },
+  {
+    "name": "Taco Bell Chicken Quesadilla",
+    "serving": "1 quesadilla",
+    "kcal": 490,
+    "category": "fast-food",
+    "aliases": [
+      "quesadilla",
+      "chicken quesadilla"
+    ]
+  },
+  {
+    "name": "Taco Bell Cheesy Gordita Crunch",
+    "serving": "1 item",
+    "kcal": 480,
+    "category": "fast-food",
+    "aliases": [
+      "gordita"
+    ]
+  },
+  {
+    "name": "Taco Bell Mexican Pizza",
+    "serving": "1 item",
+    "kcal": 530,
+    "category": "fast-food",
+    "aliases": [
+      "pizza"
+    ]
+  },
+  {
+    "name": "Pizza Hut Cheese Pizza, large hand tossed",
+    "serving": "1 slice",
+    "kcal": 310,
+    "category": "fast-food",
+    "aliases": [
+      "pizza",
+      "pizza slice",
+      "cheese pizza"
+    ]
+  },
+  {
+    "name": "Pizza Hut Pepperoni Pizza, large hand tossed",
+    "serving": "1 slice",
+    "kcal": 320,
+    "category": "fast-food",
+    "aliases": [
+      "pizza",
+      "pizza slice",
+      "pepperoni pizza"
+    ]
+  },
+  {
+    "name": "Pizza Hut Pepperoni Pizza, medium pan",
+    "serving": "1 slice",
+    "kcal": 270,
+    "category": "fast-food",
+    "aliases": [
+      "pizza",
+      "pizza slice",
+      "pepperoni pizza"
+    ]
+  },
+  {
+    "name": "Taco, beef (corn tortilla, cheese)",
+    "serving": "1 taco (105 g)",
+    "kcal": 261,
+    "category": "mexican",
+    "aliases": [
+      "taco",
+      "tacos",
+      "beef taco"
+    ]
+  },
+  {
+    "name": "Taco, chicken (corn tortilla, cheese)",
+    "serving": "1 taco (105 g)",
+    "kcal": 222,
+    "category": "mexican",
+    "aliases": [
+      "taco",
+      "tacos",
+      "chicken taco"
+    ]
+  },
+  {
+    "name": "Taco, pork (corn tortilla, cheese)",
+    "serving": "1 taco (105 g)",
+    "kcal": 264,
+    "category": "mexican",
+    "aliases": [
+      "taco",
+      "tacos",
+      "pork taco"
+    ]
+  },
+  {
+    "name": "Burrito, beef and bean, with cheese",
+    "serving": "1 burrito (220 g)",
+    "kcal": 482,
+    "category": "mexican",
+    "aliases": [
+      "burrito",
+      "beef burrito"
+    ]
+  },
+  {
+    "name": "Burrito, chicken and bean, with cheese",
+    "serving": "1 burrito (220 g)",
+    "kcal": 447,
+    "category": "mexican",
+    "aliases": [
+      "burrito",
+      "chicken burrito"
+    ]
+  },
+  {
+    "name": "Burrito, bean and cheese",
+    "serving": "1 burrito (190 g)",
+    "kcal": 372,
+    "category": "mexican",
+    "aliases": [
+      "burrito",
+      "bean burrito",
+      "bean and cheese burrito"
+    ]
+  },
+  {
+    "name": "Enchilada, beef",
+    "serving": "1 enchilada (150 g)",
+    "kcal": 287,
+    "category": "mexican",
+    "aliases": [
+      "enchilada",
+      "enchiladas"
+    ]
+  },
+  {
+    "name": "Enchilada, chicken",
+    "serving": "1 enchilada (150 g)",
+    "kcal": 267,
+    "category": "mexican",
+    "aliases": [
+      "enchilada",
+      "enchiladas"
+    ]
+  },
+  {
+    "name": "Enchilada, cheese (no meat)",
+    "serving": "1 enchilada (150 g)",
+    "kcal": 248,
+    "category": "mexican",
+    "aliases": [
+      "enchilada",
+      "enchiladas",
+      "cheese enchilada"
+    ]
+  },
+  {
+    "name": "Quesadilla, cheese",
+    "serving": "1 whole (120 g)",
+    "kcal": 379,
+    "category": "mexican",
+    "aliases": [
+      "quesadilla",
+      "cheese quesadilla"
+    ]
+  },
+  {
+    "name": "Quesadilla, chicken",
+    "serving": "1 whole (140 g)",
+    "kcal": 402,
+    "category": "mexican",
+    "aliases": [
+      "quesadilla",
+      "chicken quesadilla"
+    ]
+  },
+  {
+    "name": "Tamale, pork",
+    "serving": "1 tamale (140 g)",
+    "kcal": 244,
+    "category": "mexican",
+    "aliases": [
+      "tamale",
+      "tamales"
+    ]
+  },
+  {
+    "name": "Tamale, chicken",
+    "serving": "1 tamale (140 g)",
+    "kcal": 244,
+    "category": "mexican",
+    "aliases": [
+      "tamale",
+      "tamales"
+    ]
+  },
+  {
+    "name": "Chile relleno, cheese-filled",
+    "serving": "1 chile (143 g)",
+    "kcal": 326,
+    "category": "mexican",
+    "aliases": [
+      "chile relleno",
+      "chiles rellenos",
+      "chili relleno"
+    ]
+  },
+  {
+    "name": "Nachos, cheese",
+    "serving": "1 order (250 g)",
+    "kcal": 665,
+    "category": "mexican",
+    "aliases": [
+      "nachos"
+    ]
+  },
+  {
+    "name": "Nachos, beef or pork",
+    "serving": "1 order (250 g)",
+    "kcal": 663,
+    "category": "mexican",
+    "aliases": [
+      "nachos",
+      "beef nachos"
+    ]
+  },
+  {
+    "name": "Guacamole",
+    "serving": "1 container (70 g)",
+    "kcal": 109,
+    "category": "mexican",
+    "aliases": [
+      "guac",
+      "avocado dip"
+    ]
+  },
+  {
+    "name": "Mexican rice (Spanish rice, restaurant)",
+    "serving": "1 cup (243 g)",
+    "kcal": 450,
+    "category": "mexican",
+    "aliases": [
+      "spanish rice",
+      "arroz",
+      "rice"
+    ]
+  },
+  {
+    "name": "Refried beans",
+    "serving": "1 cup (260 g)",
+    "kcal": 234,
+    "category": "mexican",
+    "aliases": [
+      "beans",
+      "frijoles"
+    ]
+  },
+  {
+    "name": "Pozole (soup)",
+    "serving": "1 cup (245 g)",
+    "kcal": 105,
+    "category": "mexican",
+    "aliases": [
+      "posole",
+      "soup"
+    ]
+  },
+  {
+    "name": "Horchata (made with water)",
+    "serving": "1 cup (8 fl oz) (248 g)",
+    "kcal": 218,
+    "category": "mexican",
+    "aliases": [
+      "rice drink"
+    ]
+  },
+  {
+    "name": "Carnitas (pork)",
+    "serving": "1 cup (135 g)",
+    "kcal": 366,
+    "category": "mexican",
+    "aliases": [
+      "pulled pork",
+      "pork"
+    ]
+  },
+  {
+    "name": "Salsa, red",
+    "serving": "1 tbsp (16 g)",
+    "kcal": 5,
+    "category": "mexican",
+    "aliases": [
+      "salsa",
+      "chips and salsa"
+    ]
+  },
+  {
+    "name": "Pico de gallo",
+    "serving": "1 cup (240 g)",
+    "kcal": 41,
+    "category": "mexican",
+    "aliases": [
+      "salsa",
+      "pico"
+    ]
+  }
+]
