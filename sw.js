@@ -3,7 +3,7 @@
  * (or any other shell file) changes so clients pick up the new version and old
  * caches are removed. Paths are relative, so the app works from any subpath.
  */
-const CACHE_VERSION = 'v1.3.0';
+const CACHE_VERSION = 'v1.3.1';
 const CACHE_PREFIX = 'calorie-tracker-shell-';
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
 

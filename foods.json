@@ -302,7 +302,12 @@
   {
     "name": "Tortilla chips",
     "serving": "1 oz (28 g)",
-    "kcal": 138
+    "kcal": 138,
+    "aliases": [
+      "chips and salsa",
+      "chips & salsa",
+      "chips"
+    ]
   },
   {
     "name": "Granola bar, chewy",
@@ -587,6 +592,165 @@
     ]
   },
   {
+    "name": "Wendy's French Fries, medium",
+    "serving": "1 medium",
+    "kcal": 350,
+    "category": "fast-food",
+    "aliases": [
+      "fries",
+      "french fries",
+      "wendys"
+    ],
+    "source": {
+      "url": "https://fastfoodnutrition.org/wendys/natural-cut-fries",
+      "type": "mirror"
+    }
+  },
+  {
+    "name": "Wendy's Chicken Nuggets, 10 pc",
+    "serving": "10 pieces",
+    "kcal": 420,
+    "category": "fast-food",
+    "aliases": [
+      "nuggets",
+      "chicken nuggets",
+      "wendys"
+    ],
+    "source": {
+      "url": "https://fastfoodnutrition.org/wendys/chicken-nuggets",
+      "type": "mirror"
+    }
+  },
+  {
+    "name": "Burger King Whopper",
+    "serving": "1 sandwich",
+    "kcal": 670,
+    "category": "fast-food",
+    "aliases": [
+      "whopper",
+      "burger",
+      "hamburger",
+      "bk",
+      "burger king"
+    ],
+    "source": {
+      "url": "https://fastfoodnutrition.org/burger-king/whopper",
+      "type": "mirror"
+    }
+  },
+  {
+    "name": "Burger King French Fries, medium",
+    "serving": "1 medium",
+    "kcal": 370,
+    "category": "fast-food",
+    "aliases": [
+      "fries",
+      "french fries",
+      "bk",
+      "burger king"
+    ],
+    "source": {
+      "url": "https://fastfoodnutrition.org/burger-king/french-fries",
+      "type": "mirror"
+    }
+  },
+  {
+    "name": "Subway Oven Roasted Turkey, 6-inch",
+    "serving": "1 6-inch sub",
+    "kcal": 260,
+    "category": "fast-food",
+    "aliases": [
+      "turkey sub",
+      "sub",
+      "sandwich",
+      "subway"
+    ],
+    "source": {
+      "url": "https://fastfoodnutrition.org/subway/turkey-breast",
+      "type": "mirror"
+    }
+  },
+  {
+    "name": "Subway Italian B.M.T., 6-inch",
+    "serving": "1 6-inch sub",
+    "kcal": 360,
+    "category": "fast-food",
+    "aliases": [
+      "bmt",
+      "italian bmt",
+      "sub",
+      "sandwich",
+      "subway"
+    ],
+    "source": {
+      "url": "https://fastfoodnutrition.org/subway/italian-bmt",
+      "type": "mirror"
+    }
+  },
+  {
+    "name": "Domino's Cheese Pizza, large hand tossed",
+    "serving": "1 slice (1/8 of 14 in)",
+    "kcal": 270,
+    "category": "fast-food",
+    "aliases": [
+      "pizza",
+      "pizza slice",
+      "cheese pizza",
+      "dominos"
+    ],
+    "source": {
+      "url": "https://www.dominos.com/cms/assets/7d2e19df-e360-41eb-a367-5ab794ab2ebc",
+      "type": "official"
+    }
+  },
+  {
+    "name": "Domino's Pepperoni Pizza, large hand tossed",
+    "serving": "1 slice (1/8 of 14 in)",
+    "kcal": 280,
+    "category": "fast-food",
+    "aliases": [
+      "pizza",
+      "pizza slice",
+      "pepperoni pizza",
+      "dominos"
+    ],
+    "source": {
+      "url": "https://www.dominos.com/cms/assets/7d2e19df-e360-41eb-a367-5ab794ab2ebc",
+      "type": "official"
+    }
+  },
+  {
+    "name": "Starbucks Caffe Latte, grande, 2% milk",
+    "serving": "1 grande (16 fl oz)",
+    "kcal": 190,
+    "category": "fast-food",
+    "aliases": [
+      "latte",
+      "coffee",
+      "starbucks"
+    ],
+    "source": {
+      "url": "https://fastfoodnutrition.org/starbucks/caffe-latte-with-2-milk",
+      "type": "mirror"
+    }
+  },
+  {
+    "name": "Starbucks Pike Place Roast, grande",
+    "serving": "1 grande (16 fl oz)",
+    "kcal": 5,
+    "category": "fast-food",
+    "aliases": [
+      "coffee",
+      "drip coffee",
+      "brewed coffee",
+      "starbucks"
+    ],
+    "source": {
+      "url": "https://fastfoodnutrition.org/starbucks/pike-place-roast",
+      "type": "mirror"
+    }
+  },
+  {
     "name": "Taco, beef (corn tortilla, cheese)",
     "serving": "1 taco (105 g)",
     "kcal": 261,
@@ -817,8 +981,7 @@
     "kcal": 5,
     "category": "mexican",
     "aliases": [
-      "salsa",
-      "chips and salsa"
+      "salsa"
     ]
   },
   {
@@ -830,5 +993,20 @@
       "salsa",
       "pico"
     ]
+  },
+  {
+    "name": "Tripe soup, restaurant (menudo-style)",
+    "serving": "1 cup (200 g)",
+    "kcal": 148,
+    "category": "mexican",
+    "aliases": [
+      "menudo",
+      "tripe soup",
+      "soup"
+    ],
+    "source": {
+      "url": "https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_sr_legacy_food_csv_2018-04.zip",
+      "type": "official"
+    }
   }
 ]

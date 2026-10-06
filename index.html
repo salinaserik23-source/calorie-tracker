@@ -756,8 +756,9 @@ body.has-dock { --dock-h: calc(var(--dock-btn-h) + 2 * var(--s-2)); }
 
 /* === FOOD LIBRARY: edit here ===========================================
    One row per food: { name: '...', serving: '...', kcal: N }
-   Optional fields: category: 'fast-food' | 'mexican', and
-   aliases: ['...'] (extra search terms, e.g. 'fries', 'nuggets').
+   Optional fields: category: 'fast-food' | 'mexican', aliases: ['...']
+   (extra search terms, e.g. 'fries', 'nuggets'), and source: { url, type }
+   with type 'official' or 'mirror' (on items added from v1.3.1).
    kcal = calories for ONE serving as written. Base items are typical, rounded
    values based on USDA FoodData Central (SR Legacy / FNDDS); brands and
    preparation vary. Fast food rows use each chain's published calories and
@@ -833,7 +834,7 @@ const FOOD_LIBRARY = [
   { name: 'Honey', serving: '1 tbsp (21 g)', kcal: 64 },
   // Snacks & treats
   { name: 'Potato chips', serving: '1 oz, ~15 chips (28 g)', kcal: 152 },
-  { name: 'Tortilla chips', serving: '1 oz (28 g)', kcal: 138 },
+  { name: 'Tortilla chips', serving: '1 oz (28 g)', kcal: 138, aliases: ['chips and salsa', 'chips & salsa', 'chips'] },
   { name: 'Granola bar, chewy', serving: '1 bar (28 g)', kcal: 120 },
   { name: 'Popcorn, air-popped', serving: '3 cups (24 g)', kcal: 93 },
   { name: 'Chocolate chip cookie', serving: '1 medium (16 g)', kcal: 78 },
@@ -872,6 +873,16 @@ const FOOD_LIBRARY = [
   { name: 'Pizza Hut Cheese Pizza, large hand tossed', serving: '1 slice', kcal: 310, category: 'fast-food', aliases: ['pizza', 'pizza slice', 'cheese pizza'] },
   { name: 'Pizza Hut Pepperoni Pizza, large hand tossed', serving: '1 slice', kcal: 320, category: 'fast-food', aliases: ['pizza', 'pizza slice', 'pepperoni pizza'] },
   { name: 'Pizza Hut Pepperoni Pizza, medium pan', serving: '1 slice', kcal: 270, category: 'fast-food', aliases: ['pizza', 'pizza slice', 'pepperoni pizza'] },
+  { name: 'Wendy\'s French Fries, medium', serving: '1 medium', kcal: 350, category: 'fast-food', aliases: ['fries', 'french fries', 'wendys'], source: { url: 'https://fastfoodnutrition.org/wendys/natural-cut-fries', type: 'mirror' } },
+  { name: 'Wendy\'s Chicken Nuggets, 10 pc', serving: '10 pieces', kcal: 420, category: 'fast-food', aliases: ['nuggets', 'chicken nuggets', 'wendys'], source: { url: 'https://fastfoodnutrition.org/wendys/chicken-nuggets', type: 'mirror' } },
+  { name: 'Burger King Whopper', serving: '1 sandwich', kcal: 670, category: 'fast-food', aliases: ['whopper', 'burger', 'hamburger', 'bk', 'burger king'], source: { url: 'https://fastfoodnutrition.org/burger-king/whopper', type: 'mirror' } },
+  { name: 'Burger King French Fries, medium', serving: '1 medium', kcal: 370, category: 'fast-food', aliases: ['fries', 'french fries', 'bk', 'burger king'], source: { url: 'https://fastfoodnutrition.org/burger-king/french-fries', type: 'mirror' } },
+  { name: 'Subway Oven Roasted Turkey, 6-inch', serving: '1 6-inch sub', kcal: 260, category: 'fast-food', aliases: ['turkey sub', 'sub', 'sandwich', 'subway'], source: { url: 'https://fastfoodnutrition.org/subway/turkey-breast', type: 'mirror' } },
+  { name: 'Subway Italian B.M.T., 6-inch', serving: '1 6-inch sub', kcal: 360, category: 'fast-food', aliases: ['bmt', 'italian bmt', 'sub', 'sandwich', 'subway'], source: { url: 'https://fastfoodnutrition.org/subway/italian-bmt', type: 'mirror' } },
+  { name: 'Domino\'s Cheese Pizza, large hand tossed', serving: '1 slice (1/8 of 14 in)', kcal: 270, category: 'fast-food', aliases: ['pizza', 'pizza slice', 'cheese pizza', 'dominos'], source: { url: 'https://www.dominos.com/cms/assets/7d2e19df-e360-41eb-a367-5ab794ab2ebc', type: 'official' } },
+  { name: 'Domino\'s Pepperoni Pizza, large hand tossed', serving: '1 slice (1/8 of 14 in)', kcal: 280, category: 'fast-food', aliases: ['pizza', 'pizza slice', 'pepperoni pizza', 'dominos'], source: { url: 'https://www.dominos.com/cms/assets/7d2e19df-e360-41eb-a367-5ab794ab2ebc', type: 'official' } },
+  { name: 'Starbucks Caffe Latte, grande, 2% milk', serving: '1 grande (16 fl oz)', kcal: 190, category: 'fast-food', aliases: ['latte', 'coffee', 'starbucks'], source: { url: 'https://fastfoodnutrition.org/starbucks/caffe-latte-with-2-milk', type: 'mirror' } },
+  { name: 'Starbucks Pike Place Roast, grande', serving: '1 grande (16 fl oz)', kcal: 5, category: 'fast-food', aliases: ['coffee', 'drip coffee', 'brewed coffee', 'starbucks'], source: { url: 'https://fastfoodnutrition.org/starbucks/pike-place-roast', type: 'mirror' } },
   // Mexican (USDA FoodData Central FNDDS; see tools/food-sources-v1.3.md)
   { name: 'Taco, beef (corn tortilla, cheese)', serving: '1 taco (105 g)', kcal: 261, category: 'mexican', aliases: ['taco', 'tacos', 'beef taco'] },
   { name: 'Taco, chicken (corn tortilla, cheese)', serving: '1 taco (105 g)', kcal: 222, category: 'mexican', aliases: ['taco', 'tacos', 'chicken taco'] },
@@ -895,8 +906,9 @@ const FOOD_LIBRARY = [
   { name: 'Pozole (soup)', serving: '1 cup (245 g)', kcal: 105, category: 'mexican', aliases: ['posole', 'soup'] },
   { name: 'Horchata (made with water)', serving: '1 cup (8 fl oz) (248 g)', kcal: 218, category: 'mexican', aliases: ['rice drink'] },
   { name: 'Carnitas (pork)', serving: '1 cup (135 g)', kcal: 366, category: 'mexican', aliases: ['pulled pork', 'pork'] },
-  { name: 'Salsa, red', serving: '1 tbsp (16 g)', kcal: 5, category: 'mexican', aliases: ['salsa', 'chips and salsa'] },
-  { name: 'Pico de gallo', serving: '1 cup (240 g)', kcal: 41, category: 'mexican', aliases: ['salsa', 'pico'] }
+  { name: 'Salsa, red', serving: '1 tbsp (16 g)', kcal: 5, category: 'mexican', aliases: ['salsa'] },
+  { name: 'Pico de gallo', serving: '1 cup (240 g)', kcal: 41, category: 'mexican', aliases: ['salsa', 'pico'] },
+  { name: 'Tripe soup, restaurant (menudo-style)', serving: '1 cup (200 g)', kcal: 148, category: 'mexican', aliases: ['menudo', 'tripe soup', 'soup'], source: { url: 'https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_sr_legacy_food_csv_2018-04.zip', type: 'official' } }
 ];
 /* === end FOOD LIBRARY ================================================= */
 
@@ -1135,6 +1147,9 @@ const FOOD_LIBRARY = [
       if (al.length) out.aliases = al;
     }
     if (typeof f.category === 'string' && f.category.trim()) out.category = f.category.trim().toLowerCase().slice(0, 20);
+    if (f.source && typeof f.source === 'object' && typeof f.source.url === 'string' && f.source.url.trim()) {
+      out.source = { url: f.source.url.trim().slice(0, 300), type: f.source.type === 'official' ? 'official' : 'mirror' };
+    }
     return out;
   }
   function cleanCustomFood(f) {
@@ -1693,32 +1708,43 @@ const FOOD_LIBRARY = [
     if (at < 0) return { rank: -1, at: -1 };
     return { rank: at === 0 ? 0 : /[\s(,/'-]/.test(text[at - 1]) ? 1 : 2, at: at };
   }
+  /** Lowercase, curly quotes -> straight, whitespace collapsed (keeps string length for names without runs of spaces). */
+  function normText(t) { return String(t).toLowerCase().replace(/[\u2018\u2019\u02bc`]/g, "'").replace(/\s+/g, ' ').trim(); }
+  /** normText with spaces, punctuation and apostrophes removed: "McDonald’s Big Mac" -> "mcdonaldsbigmac". */
+  function squash(t) { return normText(t).replace(/[^\p{L}\p{N}]+/gu, ''); }
+  const CUSTOM_BOOST = 2;            // my foods outrank library items that match as well or slightly better
   /**
-   * Case-insensitive match on the name and optional aliases. An exact alias
-   * (e.g. 'taco', 'fries') or exact word in the name ranks first, then prefix,
-   * word-start and substring matches.
+   * Match on the name and optional aliases, case-insensitive, whitespace-collapsed,
+   * and also with spaces/punctuation/apostrophes squashed out ('bigmac', 'mc donalds').
+   * Score: -1 exact name or exact alias; 0 prefix or whole word; 1 word start; 2 anywhere;
+   * squashed-only matches rank just after their normal counterparts. My foods get
+   * CUSTOM_BOOST and win ties.
    */
   function searchFoods(q) {
-    q = q.trim().toLowerCase();
+    q = normText(q);
     if (!q) return [];
+    const qs = squash(q);
     const scored = [];
-    const wordRe = new RegExp('(^|[^a-z0-9])' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '([^a-z0-9]|$)');
-    allFoods().forEach((f) => {
-      const n = f.name.toLowerCase();
+    const wordRe = new RegExp('(^|[^\\p{L}\\p{N}])' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '([^\\p{L}\\p{N}]|$)', 'u');
+    function rankOf(text) {          // best rank of q against one name/alias
+      const n = normText(text);
+      if (n === q || (qs && squash(n) === qs)) return -1;
       const m = matchRank(n, q);
-      let best = Infinity;
-      if (m.rank >= 0) best = wordRe.test(n) ? Math.min(m.rank, 0.5) : m.rank;
-      (f.aliases || []).forEach((al) => {
-        if (al === q) { best = -1; return; }
-        const r = matchRank(al, q).rank;
-        if (r >= 0) best = Math.min(best, r + 0.25);
-      });
+      if (m.rank >= 0) return wordRe.test(n) ? Math.min(m.rank, 0) : m.rank;
+      if (!qs) return Infinity;
+      const sm = matchRank(squash(n), qs);
+      return sm.rank >= 0 ? (sm.rank === 0 ? 0.5 : 2.5) : Infinity;
+    }
+    allFoods().forEach((f) => {
+      let best = rankOf(f.name);
+      (f.aliases || []).forEach((al) => { best = Math.min(best, rankOf(al) + (normText(al) === q || squash(al) === qs ? 0 : 0.25)); });
       if (best === Infinity) return;
-      const score = best - (f.custom ? 0.5 : 0);
-      scored.push({ f: f, score: score, at: m.at });
+      const lower = f.name.toLowerCase().replace(/[\u2018\u2019\u02bc`]/g, "'");   // same length as the name, for highlighting
+      const at = lower.indexOf(q);
+      scored.push({ f: f, score: best - (f.custom ? CUSTOM_BOOST : 0), at: at, len: at >= 0 ? q.length : 0 });
     });
-    scored.sort((a, b) => a.score - b.score || a.f.name.localeCompare(b.f.name));
-    return scored.slice(0, RESULT_COUNT).map((s) => Object.assign({ at: s.at }, s.f));
+    scored.sort((a, b) => a.score - b.score || (b.f.custom ? 1 : 0) - (a.f.custom ? 1 : 0) || a.f.name.localeCompare(b.f.name));
+    return scored.slice(0, RESULT_COUNT).map((s) => Object.assign({ at: s.at, len: s.len }, s.f));
   }
   function highlight(name, at, len) {
     if (at < 0 || !len) return esc(name);
@@ -1735,10 +1761,9 @@ const FOOD_LIBRARY = [
     ul.hidden = !searchPool.length;
     $('#no-results').hidden = !(showSearch && !searchPool.length);
     $('#results-status').textContent = showSearch ? (searchPool.length ? searchPool.length + ' matching foods' : 'No matching foods') : '';
-    const len = q.trim().length;
     ul.innerHTML = searchPool.map((f, i) =>
       '<li><button class="result" type="button" data-action="pick-food" data-idx="' + i + '" aria-label="' + esc(f.name) + (f.custom ? ' (my food)' : '') + ', ' + esc(f.serving) + ', ' + fmt(f.kcal) + ' kcal">' +
-      '<span class="result-text"><span class="result-name">' + highlight(f.name, f.at, len) + (f.custom ? '<span class="badge">My food</span>' : '') + '</span>' +
+      '<span class="result-text"><span class="result-name">' + highlight(f.name, f.at, f.len) + (f.custom ? '<span class="badge">My food</span>' : '') + '</span>' +
       '<span class="caption">' + esc(f.serving) + '</span></span>' +
       '<span class="result-kcal">' + fmt(f.kcal) + ' <small>kcal</small></span></button></li>'
     ).join('');
